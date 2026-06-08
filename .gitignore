@@ -1,0 +1,4 @@
+# dependencies from dev branch (local only)
+node_modules/
+.next/
+next-env.d.ts
