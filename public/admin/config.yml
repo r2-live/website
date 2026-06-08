@@ -1,0 +1,167 @@
+local_backend: true
+
+backend:
+  name: github
+  repo: r2-live/website
+  branch: main
+  base_url: https://www.r2-live.at
+  auth_endpoint: api/decap-auth
+
+media_folder: public/media/uploads
+public_folder: /media/uploads
+
+locale: de
+
+site_url: https://www.r2-live.at
+display_url: https://www.r2-live.at
+logo_url: /media/r2-live/logo.svg
+
+publish_mode: editorial_workflow
+
+slug:
+  encoding: ascii
+  clean_accents: true
+  sanitize_replacement: "-"
+
+collections:
+  - name: bands
+    label: Band-Profile
+    label_singular: Band-Profil
+    folder: content/bands
+    create: false
+    slug: "{{slug}}"
+    extension: md
+    format: frontmatter
+    fields:
+      - { name: slug, label: Slug, widget: hidden }
+      - { name: displayName, label: Anzeigename }
+      - { name: shortName, label: Kurzname }
+      - { name: tagline, label: Tagline }
+      - { name: description, label: Beschreibung, widget: text }
+      - { name: heroImage, label: Hero Bild, widget: image, required: false, hint: "Empfohlen: JPEG/WebP, max. 2 MB, mind. 1200px breit." }
+      - { name: heroVideo, label: Hero Video URL, required: false, hint: "Optional: MP4 Pfad unter /media/..." }
+      - label: Mitglieder
+        name: members
+        widget: list
+        summary: "{{fields.name}} — {{fields.role}}"
+        fields:
+          - { name: name, label: Name }
+          - { name: role, label: Rolle / Instrument }
+          - { name: photo, label: Foto, widget: image, required: false }
+
+  - name: gallery
+    label: Galerie
+    label_singular: Galeriebild
+    folder: content/gallery
+    path: "{{band}}/{{slug}}"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    extension: md
+    format: frontmatter
+    fields:
+      - label: Band
+        name: band
+        widget: select
+        options:
+          - { label: R2-Live, value: r2-live }
+          - { label: KURT & THE GANG, value: katg }
+      - { name: image, label: Bild, widget: image, hint: "JPEG/WebP, max. 2 MB empfohlen." }
+      - { name: caption, label: Bildtext, required: false }
+      - { name: order, label: Sortierung, widget: number, default: 0, value_type: int }
+
+  - name: setlist
+    label: Repertoire
+    label_singular: Song
+    folder: content/setlist
+    path: "{{band}}/{{slug}}"
+    create: true
+    slug: "{{slug}}"
+    extension: md
+    format: frontmatter
+    fields:
+      - label: Band
+        name: band
+        widget: select
+        options:
+          - { label: R2-Live, value: r2-live }
+          - { label: KURT & THE GANG, value: katg }
+      - { name: title, label: Titel }
+      - { name: originalArtist, label: Original-Künstler }
+      - label: Medientyp
+        name: mediaType
+        widget: select
+        required: false
+        options:
+          - { label: Keins, value: "" }
+          - { label: MP3, value: mp3 }
+          - { label: Video (MP4), value: video }
+          - { label: YouTube, value: youtube }
+      - { name: mediaUrl, label: Media URL / Pfad, required: false, hint: "MP3/MP4 unter /media/... oder YouTube Link." }
+      - { name: order, label: Sortierung, widget: number, default: 0, value_type: int }
+
+  - name: events
+    label: Termine
+    label_singular: Termin
+    folder: content/shared/events
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    extension: md
+    format: frontmatter
+    fields:
+      - { name: name, label: Eventname }
+      - { name: venue, label: Venue }
+      - { name: location, label: Ort }
+      - { name: date, label: Datum, widget: datetime, date_format: YYYY-MM-DD, time_format: false }
+      - { name: time, label: Uhrzeit, widget: string, pattern: ['^([01]?[0-9]|2[0-3]):[0-5][0-9]$'], hint: "Format HH:MM" }
+      - { name: url, label: Link, required: false }
+
+  - name: venues
+    label: Spielorte
+    label_singular: Spielort
+    folder: content/shared/venues
+    create: true
+    slug: "{{slug}}"
+    extension: md
+    format: frontmatter
+    fields:
+      - { name: name, label: Name }
+      - { name: image, label: Bild / Logo, widget: image, required: false }
+      - { name: url, label: Link, required: false }
+      - { name: order, label: Sortierung, widget: number, default: 0, value_type: int }
+
+  - name: shared
+    label: Gemeinsame Inhalte
+    files:
+      - name: cover_artists
+        label: Cover-Künstler
+        file: content/shared/cover-artists.md
+        extension: md
+        format: frontmatter
+        fields:
+          - label: Künstler
+            name: artists
+            widget: list
+            field: { name: artist, label: Künstler, widget: string }
+      - name: contact
+        label: Kontakt
+        file: content/shared/contact.md
+        extension: md
+        format: frontmatter
+        fields:
+          - { name: email, label: E-Mail }
+          - { name: phone, label: Telefon, required: false }
+          - { name: instagram, label: Instagram URL, required: false }
+          - { name: facebook, label: Facebook URL, required: false }
+          - { name: youtube, label: YouTube URL, required: false }
+      - name: impressum
+        label: Impressum
+        file: content/shared/legal/impressum.md
+        fields:
+          - { name: title, label: Titel, widget: hidden, default: Impressum }
+          - { name: body, label: Inhalt, widget: markdown }
+      - name: datenschutz
+        label: Datenschutz
+        file: content/shared/legal/datenschutz.md
+        fields:
+          - { name: title, label: Titel, widget: hidden, default: Datenschutzerklärung }
+          - { name: body, label: Inhalt, widget: markdown }

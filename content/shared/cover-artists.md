@@ -1,0 +1,13 @@
+---
+artists:
+  - Wolfgang Ambros
+  - Rainhard Fendrich
+  - Falco
+  - Udo Jürgens
+  - Christina Stürmer
+  - Bilderbuch
+  - Seiler und Speer
+  - Andreas Gabalier
+  - Wanda
+  - STS
+---
