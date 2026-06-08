@@ -5,6 +5,7 @@ import { BandExploreRail } from "@/components/brand/BandExploreRail";
 import { BrandProvider, useBrand } from "@/components/brand/BrandProvider";
 import { SweepTransition } from "@/components/brand/SweepTransition";
 import { BrandNav } from "@/components/nav/BrandNav";
+import { SharedZoneBridge } from "@/components/sections/SharedZoneBridge";
 import { BandZone } from "@/components/sections/BandZone";
 import { CoverArtistsSection } from "@/components/sections/CoverArtists";
 import { ContactSection } from "@/components/sections/Contact";
@@ -33,7 +34,8 @@ function HomePageContent({ content }: { content: SiteContent }) {
         <BandZone content={content} />
 
         <section ref={sharedZoneRef} id="gemeinsam" className="retro-section-shared">
-          <div className="retro-divider py-10">Gemeinsam on stage</div>
+          <SharedZoneBridge />
+          <div className="retro-divider py-8">Gemeinsam on stage</div>
           <CoverArtistsSection artists={content.coverArtists} />
           <EventsSection events={content.events} />
           <VenuesSection venues={content.venues} />

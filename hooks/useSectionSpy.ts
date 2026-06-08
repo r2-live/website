@@ -53,7 +53,7 @@ export function useKeyboardNavigation(
         return;
       }
 
-      if (navVisible && key === "k") {
+      if (navVisible && key === "g") {
         setActiveBrand("katg");
         return;
       }

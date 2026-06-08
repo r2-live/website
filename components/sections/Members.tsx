@@ -30,11 +30,11 @@ export function MembersSection({
                   />
                 ) : null}
               </div>
-              <div className="p-5">
-                <h3 className="font-display text-xl uppercase tracking-wide">
+              <div className="p-3 sm:p-4">
+                <h3 className="font-display text-base uppercase tracking-wide sm:text-lg">
                   {member.name}
                 </h3>
-                <p className="mt-1 text-sm text-muted">{member.role}</p>
+                <p className="mt-1 text-xs text-muted sm:text-sm">{member.role}</p>
               </div>
             </article>
           ))}

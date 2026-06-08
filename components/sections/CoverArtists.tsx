@@ -6,7 +6,7 @@ export function CoverArtistsSection({ artists }: { artists: string[] }) {
     <section id={SECTION_IDS.covers} className="section-shell px-6 py-20">
       <div className="mx-auto max-w-6xl">
         <SectionHeading
-          eyebrow="Gemeinsam"
+          eyebrow="im duo & zu viert"
           title="Künstler & Covers"
           description="Wir spielen die Hits, die Österreich liebt — von Klassikern bis zu modernen Lieblingen."
         />

@@ -1,10 +1,10 @@
 ---
 slug: katg
-displayName: KURT & THE GANG
-shortName: KATG
+displayName: Kurt & The Gang
+shortName: Kurt & The Gang
 tagline: Vier Musiker. Volle Bühne. Pure Stimmung.
 description: >-
-  KURT & THE GANG ist die Vierer-Besetzung für größere Bühnen und Festivals.
+  Kurt & The Gang ist die Vierer-Besetzung für größere Bühnen und Festivals.
   Mit Schlagzeug, Bass und erweitertem Sound verwandeln Kurt und die Gang jeden
   Abend in ein mitreißendes Austropop-Erlebnis.
 heroImage: /media/katg/hero.svg

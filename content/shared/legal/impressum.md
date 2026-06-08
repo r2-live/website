@@ -4,7 +4,7 @@ title: Impressum
 
 ## Angaben gemäß § 5 ECG
 
-**R2-Live / KURT & THE GANG**  
+**R2-Live / Kurt & The Gang**  
 Musterstraße 1  
 4020 Linz  
 Österreich

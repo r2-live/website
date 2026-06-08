@@ -8,7 +8,7 @@ export function VenuesSection({ venues }: { venues: VenueItem[] }) {
     <section id={SECTION_IDS.venues} className="section-shell px-6 py-20">
       <div className="mx-auto max-w-6xl">
         <SectionHeading
-          eyebrow="Gemeinsam"
+          eyebrow="im duo & zu viert"
           title="Spielorte"
           description="Ein Auszug der Bühnen und Locations, auf denen wir bereits gespielt haben."
         />

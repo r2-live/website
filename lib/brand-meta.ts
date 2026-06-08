@@ -22,7 +22,7 @@ export const BRAND_META: Record<
     inactiveShadow: "shadow-[2px_2px_0_rgba(42,31,20,0.15)]",
   },
   katg: {
-    label: "KURT & THE GANG",
+    label: "Kurt & The Gang",
     accentBorder: "border-accent-katg",
     accentText: "text-accent-katg",
     accentBg: "bg-accent-katg",

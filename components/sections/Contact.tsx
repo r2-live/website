@@ -19,9 +19,9 @@ export function ContactSection({ contact }: { contact: ContactInfo }) {
       <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1fr_1.1fr]">
         <div>
           <SectionHeading
-            eyebrow="Gemeinsam"
+            eyebrow="im duo & zu viert"
             title="Kontakt"
-            description="Buchungsanfragen für R2-Live, KURT & THE GANG oder beide Formate."
+            description="Buchungsanfragen für R2-Live, Kurt & The Gang oder beide Formate."
           />
           <ul className="space-y-3 text-sm text-muted">
             <li>
@@ -91,7 +91,7 @@ export function ContactSection({ contact }: { contact: ContactInfo }) {
                 defaultValue="beide"
               >
                 <option value="r2-live">R2-Live</option>
-                <option value="katg">KURT & THE GANG</option>
+                <option value="katg">Kurt & The Gang</option>
                 <option value="beide">Beide / unsicher</option>
               </select>
             </label>
@@ -116,7 +116,7 @@ export function ContactSection({ contact }: { contact: ContactInfo }) {
           <button
             type="submit"
             disabled={pending}
-            className="retro-btn mt-5 inline-flex rounded-md bg-accent-katg px-5 py-3 text-sm text-white disabled:opacity-60"
+            className="retro-btn mt-5 inline-flex rounded-md bg-accent-gold px-5 py-3 text-sm text-white disabled:opacity-60"
           >
             {pending ? "Wird gesendet…" : "Nachricht senden"}
           </button>

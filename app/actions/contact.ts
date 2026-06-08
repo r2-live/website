@@ -55,7 +55,7 @@ export async function submitContactForm(
     parsed.data.inquiryFor === "beide"
       ? "Beide / unsicher"
       : parsed.data.inquiryFor === "katg"
-        ? "KURT & THE GANG"
+        ? "Kurt & The Gang"
         : "R2-Live";
 
   const { error } = await resend.emails.send({

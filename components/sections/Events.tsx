@@ -20,9 +20,9 @@ export function EventsSection({ events }: { events: EventItem[] }) {
     <section id={SECTION_IDS.events} className="section-shell px-6 py-20">
       <div className="mx-auto max-w-4xl">
         <SectionHeading
-          eyebrow="Gemeinsam"
+          eyebrow="im duo & zu viert"
           title="Termine"
-          description="Komm vorbei — R2-Live oder KURT & THE GANG live on stage."
+          description="Komm vorbei — R2-Live oder Kurt & The Gang live on stage."
         />
         {events.length === 0 ? (
           <p className="text-center text-muted">

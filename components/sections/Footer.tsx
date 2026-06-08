@@ -22,7 +22,7 @@ export function SiteFooter() {
           </Link>
         </div>
         <p className="text-xs opacity-70">
-          Tastenkürzel: 1–9 Abschnitte · R/K Band wechseln
+          Tastenkürzel: 1–9 Abschnitte · R/G Band wechseln
         </p>
       </div>
     </footer>

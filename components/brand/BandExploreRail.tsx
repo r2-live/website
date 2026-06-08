@@ -23,7 +23,7 @@ const EXPLORE: Record<BrandSlug, ExploreConfig> = {
     edgeClass: "explore-rail-edge--katg",
     accentClass: "bg-accent-katg",
     accentMutedClass: "text-accent-katg",
-    label: "KURT & THE GANG",
+    label: "Kurt & The Gang",
     tagline: "Volle Band",
     arrow: "→",
   },
@@ -53,7 +53,7 @@ export function BandExploreRail() {
           key={activeBrand}
           aria-label={
             activeBrand === "r2-live"
-              ? "Zu KURT & THE GANG wechseln"
+              ? "Zu Kurt & The Gang wechseln"
               : "Zu R2-Live wechseln"
           }
           initial={
@@ -82,11 +82,16 @@ export function BandExploreRail() {
           <motion.button
             type="button"
             onClick={() => setActiveBrand(config.target)}
+            aria-label={
+              activeBrand === "r2-live"
+                ? "Zu Kurt & The Gang wechseln"
+                : "Zu R2-Live wechseln"
+            }
             style={{ y: "-50%" }}
             className={`explore-rail-tab pointer-events-auto absolute top-1/2 z-10 flex flex-col items-center border-2 ${targetMeta.accentBorder} ${targetMeta.bandBg} ${targetMeta.inactiveShadow} hover:shadow-[3px_3px_0_rgba(42,31,20,0.2)] ${
               isRight
-                ? "right-0 origin-right rounded-l-md rounded-r-none border-r-0 py-0.5 pl-2 pr-1 sm:pl-2.5 sm:pr-1.5"
-                : "left-0 origin-left rounded-r-md rounded-l-none border-l-0 py-0.5 pr-2 pl-1 sm:pr-2.5 sm:pl-1.5"
+                ? "right-0 origin-right rounded-l-md rounded-r-none border-r-0 py-2.5 pl-1.5 pr-1 sm:py-1 sm:pl-3 sm:pr-2"
+                : "left-0 origin-left rounded-r-md rounded-l-none border-l-0 py-2.5 pr-1.5 pl-1 sm:py-1 sm:pr-3 sm:pl-2"
             }`}
             whileHover={
               prefersReducedMotion ? undefined : { scale: 1.04, y: "-50%" }
@@ -96,12 +101,23 @@ export function BandExploreRail() {
             }
           >
             <span
-              className={`font-display mt-1 text-xs uppercase tracking-[0.22em] sm:text-sm ${config.accentMutedClass}`}
+              className={`font-display flex h-16 w-7 items-center justify-center sm:hidden ${config.accentMutedClass}`}
+            >
+              <span
+                className={`inline-block whitespace-nowrap text-[0.7rem] uppercase tracking-[0.09em] ${
+                  isRight ? "-rotate-90" : "rotate-90"
+                }`}
+              >
+                {config.tagline}
+              </span>
+            </span>
+            <span
+              className={`font-display mt-1 hidden text-xs uppercase tracking-[0.22em] sm:block sm:text-sm ${config.accentMutedClass}`}
             >
               {config.tagline}
             </span>
 
-            <span className="explore-rail-label my-0.5 flex h-[12.5rem] w-10 items-center justify-center overflow-visible sm:h-[14.5rem] sm:w-11">
+            <span className="explore-rail-label my-0.5 hidden h-[12.5rem] w-11 items-center justify-center overflow-visible sm:flex sm:h-[14.5rem] sm:w-12">
               <span
                 className={`font-display inline-block whitespace-nowrap text-xl uppercase tracking-[0.1em] sm:text-2xl ${config.accentMutedClass} ${
                   isRight ? "-rotate-90" : "rotate-90"
@@ -112,7 +128,7 @@ export function BandExploreRail() {
             </span>
 
             <motion.span
-              className={`font-display mb-1 text-2xl leading-none sm:text-3xl ${config.accentMutedClass}`}
+              className={`font-display text-[1.625rem] leading-none sm:mb-1 sm:text-4xl ${config.accentMutedClass}`}
               animate={
                 prefersReducedMotion
                   ? { opacity: 1 }
@@ -128,7 +144,7 @@ export function BandExploreRail() {
             </motion.span>
 
             <span
-              className={`mb-1 h-1 w-8 ${config.accentClass} sm:w-10`}
+              className={`mt-1.5 h-1 w-6 sm:mb-1 sm:mt-0 sm:w-11 ${config.accentClass}`}
               aria-hidden
             />
           </motion.button>

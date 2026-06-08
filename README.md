@@ -1,4 +1,4 @@
-# R2-Live / KURT & THE GANG Website
+# R2-Live / Kurt & The Gang Website
 
 Dual-brand Austropop website built with Next.js, Decap CMS, and Vercel.
 
@@ -52,4 +52,4 @@ Media uploads from Decap go to `public/media/uploads/`.
 
 - `1`–`5` — jump to band sections
 - `6`–`9` — jump to shared sections
-- `R` / `K` — switch between R2-Live and KATG (while navbar visible)
+- `R` / `G` — switch between R2-Live and Kurt & The Gang (while navbar visible)

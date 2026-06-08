@@ -49,10 +49,10 @@ export function BrandNav() {
             className="flex w-full min-w-0 items-center justify-center rounded-md bg-surface px-2 sm:px-3"
             aria-hidden
           >
-            <span className="font-display hidden text-xs uppercase tracking-[0.28em] text-accent-gold sm:block sm:text-sm">
+            <span className="font-display hidden text-[0.65rem] uppercase tracking-[0.22em] text-accent-gold xs:block xs:text-xs sm:text-sm sm:tracking-[0.28em]">
               ★ Austropop ★
             </span>
-            <span className="font-display text-sm text-accent-gold sm:hidden">
+            <span className="font-display text-sm text-accent-gold xs:hidden">
               ◆
             </span>
           </div>
@@ -62,17 +62,11 @@ export function BrandNav() {
             brand="katg"
             activeBrand={activeBrand}
             onSelect={setActiveBrand}
-            label="KURT & THE GANG"
+            label="Kurt & The Gang"
           >
-            <div className="text-right leading-none">
-              <span className="font-display block text-lg uppercase tracking-wide sm:text-xl md:hidden">
-                KATG
-              </span>
-              <span className="font-display hidden text-xs uppercase tracking-[0.18em] opacity-80 md:block">
-                KATG
-              </span>
-              <span className="font-display hidden text-base uppercase tracking-wide sm:text-lg md:block">
-                Kurt & The Gang
+            <div className="text-right leading-tight">
+              <span className="font-display block max-w-[9.5rem] text-sm uppercase tracking-wide sm:max-w-none sm:text-base md:text-lg">
+                Kurt &amp; The Gang
               </span>
             </div>
           </BrandButton>

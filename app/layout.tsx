@@ -15,11 +15,11 @@ const sourceSerif = Source_Serif_4({
 
 export const metadata: Metadata = {
   title: {
-    default: "R2-Live / KURT & THE GANG",
-    template: "%s | R2-Live / KATG",
+    default: "R2-Live / Kurt & The Gang",
+    template: "%s | R2-Live / Kurt & The Gang",
   },
   description:
-    "Austropop live on stage — R2-Live als Duo und KURT & THE GANG in voller Besetzung.",
+    "Austropop live on stage — R2-Live als Duo und Kurt & The Gang in voller Besetzung.",
 };
 
 export default function RootLayout({
