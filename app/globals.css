@@ -57,7 +57,7 @@ body {
   color: var(--muted);
 }
 
-h1 {
+.card h1 {
   margin: 0 0 1rem;
   font-size: clamp(2rem, 6vw, 3rem);
   line-height: 1.1;
