@@ -1,13 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  --background: #faf7f2;
-  --foreground: #1c1917;
-  --muted: #78716c;
-  --surface: rgba(255, 255, 255, 0.82);
-  --border: rgba(28, 25, 23, 0.08);
-  --accent-r2: #334155;
-  --accent-katg: #c2410c;
+  --background: #f2e8d5;
+  --foreground: #2a1f14;
+  --muted: #6b5344;
+  --surface: #fff9ee;
+  --surface-dark: #2a1f14;
+  --border: #c4a574;
+  --border-strong: #8b6914;
+  --accent-r2: #1a535c;
+  --accent-r2-light: #4a8a94;
+  --accent-katg: #c45c26;
+  --accent-katg-light: #e8925a;
+  --accent-gold: #b8860b;
+  --retro-shadow: #2a1f14;
 }
 
 @theme inline {
@@ -15,11 +21,17 @@
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-surface: var(--surface);
+  --color-surface-dark: var(--surface-dark);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-accent-r2: var(--accent-r2);
+  --color-accent-r2-light: var(--accent-r2-light);
   --color-accent-katg: var(--accent-katg);
-  --font-sans: var(--font-geist-sans);
+  --color-accent-katg-light: var(--accent-katg-light);
+  --color-accent-gold: var(--accent-gold);
+  --font-sans: var(--font-serif);
   --font-display: var(--font-display);
+  --font-serif: var(--font-serif);
 }
 
 * {
@@ -31,24 +43,173 @@ html {
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
+  background-image:
+    radial-gradient(
+      circle at 20% 10%,
+      rgba(196, 92, 38, 0.07),
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 80% 0%,
+      rgba(26, 83, 92, 0.06),
+      transparent 35%
+    ),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-serif), Georgia, "Times New Roman", serif;
 }
 
 ::selection {
-  background: rgba(194, 65, 12, 0.18);
+  background: rgba(196, 92, 38, 0.25);
+  color: var(--foreground);
 }
 
 .section-shell {
   scroll-margin-top: 7rem;
 }
 
+.font-display {
+  font-family: var(--font-display), Impact, "Arial Narrow", sans-serif;
+  letter-spacing: 0.04em;
+}
+
+.retro-card {
+  border: 2px solid var(--border);
+  background: var(--surface);
+  box-shadow: 4px 4px 0 var(--retro-shadow);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.retro-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--retro-shadow);
+}
+
+.retro-badge {
+  border: 2px solid var(--border-strong);
+  background: linear-gradient(180deg, #fff9ee 0%, #f5e6c8 100%);
+  box-shadow: 2px 2px 0 var(--retro-shadow);
+  font-family: var(--font-display), sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.retro-btn {
+  border: 2px solid var(--retro-shadow);
+  box-shadow: 3px 3px 0 var(--retro-shadow);
+  font-family: var(--font-display), sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.retro-btn:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--retro-shadow);
+}
+
+.retro-btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--retro-shadow);
+}
+
+.retro-input {
+  border: 2px solid var(--border);
+  background: #fffdf8;
+  box-shadow: inset 2px 2px 0 rgba(42, 31, 20, 0.06);
+}
+
+.retro-input:focus {
+  border-color: var(--accent-katg);
+  outline: 2px solid rgba(196, 92, 38, 0.25);
+  outline-offset: 1px;
+}
+
+.retro-photo {
+  filter: sepia(0.12) contrast(1.05) saturate(0.92);
+}
+
+.retro-hero-overlay-r2 {
+  background: linear-gradient(
+    to top,
+    rgba(26, 83, 92, 0.88) 0%,
+    rgba(42, 31, 20, 0.45) 45%,
+    rgba(42, 31, 20, 0.2) 100%
+  );
+}
+
+.retro-hero-overlay-katg {
+  background: linear-gradient(
+    to top,
+    rgba(120, 45, 18, 0.88) 0%,
+    rgba(42, 31, 20, 0.45) 45%,
+    rgba(42, 31, 20, 0.2) 100%
+  );
+}
+
+.retro-section-band {
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(196, 165, 116, 0.12) 100%
+  );
+}
+
+.retro-section-shared {
+  border-top: 4px double var(--border-strong);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(184, 134, 11, 0.08) 0%,
+      transparent 12rem
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 8px,
+      rgba(196, 165, 116, 0.06) 8px,
+      rgba(196, 165, 116, 0.06) 9px
+    );
+}
+
+.retro-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 1.5rem;
+  color: var(--accent-gold);
+  font-family: var(--font-display), sans-serif;
+  font-size: 0.875rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+}
+
+.retro-divider::before,
+.retro-divider::after {
+  content: "";
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--border-strong),
+    transparent
+  );
+}
+
 .prose-legal h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-family: var(--font-display), sans-serif;
+  font-size: 1.35rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
   margin-top: 1.5rem;
   margin-bottom: 0.75rem;
+  text-transform: uppercase;
 }
 
 .prose-legal p,
@@ -60,4 +221,12 @@ body {
 .prose-legal ul {
   list-style: disc;
   padding-left: 1.25rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .retro-card:hover,
+  .retro-btn:hover:not(:disabled),
+  .retro-btn:active:not(:disabled) {
+    transform: none;
+  }
 }

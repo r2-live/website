@@ -12,12 +12,18 @@ import {
   type ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
+import {
+  BAND_TRANSITION_MS,
+  getTransitionDirection,
+  type BrandTransitionDirection,
+} from "@/lib/brand-transition";
 import type { BrandSlug } from "@/lib/types";
 
 interface BrandContextValue {
   activeBrand: BrandSlug;
   setActiveBrand: (brand: BrandSlug) => void;
   isSweeping: boolean;
+  transitionDirection: BrandTransitionDirection;
   navVisible: boolean;
   setNavVisible: (visible: boolean) => void;
 }
@@ -34,6 +40,8 @@ export function BrandProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [activeBrand, setActiveBrandState] = useState<BrandSlug>("r2-live");
   const [isSweeping, setIsSweeping] = useState(false);
+  const [transitionDirection, setTransitionDirection] =
+    useState<BrandTransitionDirection>("right");
   const [navVisible, setNavVisible] = useState(true);
   const previousBrandRef = useRef<BrandSlug | null>(null);
 
@@ -41,6 +49,7 @@ export function BrandProvider({ children }: { children: ReactNode }) {
     const initial =
       parseBrandFromSearch(window.location.search) ?? "r2-live";
     setActiveBrandState(initial);
+    setTransitionDirection(getTransitionDirection(initial));
     previousBrandRef.current = initial;
   }, []);
 
@@ -48,10 +57,14 @@ export function BrandProvider({ children }: { children: ReactNode }) {
     if (previousBrandRef.current === null) return;
     if (previousBrandRef.current === activeBrand) return;
 
+    setTransitionDirection(getTransitionDirection(activeBrand));
     previousBrandRef.current = activeBrand;
 
     setIsSweeping(true);
-    const sweepTimer = window.setTimeout(() => setIsSweeping(false), 650);
+    const sweepTimer = window.setTimeout(
+      () => setIsSweeping(false),
+      BAND_TRANSITION_MS,
+    );
 
     const url = new URL(window.location.href);
     url.searchParams.set("band", activeBrand);
@@ -71,10 +84,17 @@ export function BrandProvider({ children }: { children: ReactNode }) {
       activeBrand,
       setActiveBrand,
       isSweeping,
+      transitionDirection,
       navVisible,
       setNavVisible,
     }),
-    [activeBrand, isSweeping, navVisible, setActiveBrand],
+    [
+      activeBrand,
+      isSweeping,
+      transitionDirection,
+      navVisible,
+      setActiveBrand,
+    ],
   );
 
   return (

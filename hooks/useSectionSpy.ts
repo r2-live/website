@@ -60,7 +60,7 @@ export function useKeyboardNavigation(
 
       const bandSection = BAND_SECTIONS.find((section) => section.key === key);
       if (bandSection) {
-        scrollToSection(`band-${bandSection.id}`);
+        scrollToSection(`${activeBrand}-${bandSection.id}`);
         return;
       }
 
