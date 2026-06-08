@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useBrand } from "@/components/brand/BrandProvider";
+import { BRAND_META } from "@/lib/brand-meta";
 import type { BrandSlug } from "@/lib/types";
 
 export function BrandNav() {
@@ -17,45 +18,66 @@ export function BrandNav() {
         pointerEvents: navVisible ? "auto" : "none",
       }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className="fixed top-4 left-1/2 z-50 w-[min(94vw,740px)] -translate-x-1/2"
+      className="fixed top-3 left-1/2 z-50 w-[min(94vw,720px)] -translate-x-1/2"
     >
-      <div className="retro-card flex items-center justify-between gap-2 rounded-sm px-3 py-2.5 sm:gap-4 sm:px-4 sm:py-3">
-        <BrandButton
-          brand="r2-live"
-          activeBrand={activeBrand}
-          onSelect={setActiveBrand}
-          label="R2-Live"
+      <div className="w-full overflow-hidden rounded-xl border-2 border-border bg-surface p-1.5 shadow-[4px_4px_0_var(--retro-shadow)] sm:p-2">
+        <div
+          className="grid w-full grid-cols-[auto_1fr_auto] items-stretch gap-1.5 sm:gap-2"
+          role="tablist"
+          aria-label="Band auswählen"
         >
-          <img
-            src="/media/r2-live/logo.svg"
-            alt="R2-Live"
-            width={140}
-            height={56}
-            className={`h-11 w-auto object-contain sm:h-14 ${
+          <div className="flex justify-start">
+          <BrandButton
+            brand="r2-live"
+            activeBrand={activeBrand}
+            onSelect={setActiveBrand}
+            label="R2-Live"
+          >
+            <img
+              src="/media/r2-live/logo.svg"
+              alt="R2-Live"
+              width={140}
+              height={56}
+              className={`h-11 w-auto object-contain sm:h-14 ${
               activeBrand === "r2-live" ? "brightness-0 invert" : ""
             }`}
-          />
-        </BrandButton>
+            />
+          </BrandButton>
+          </div>
 
-        <span className="font-display hidden text-[0.65rem] uppercase tracking-[0.35em] text-accent-gold sm:block">
-          ★ Austropop ★
-        </span>
-
-        <BrandButton
-          brand="katg"
-          activeBrand={activeBrand}
-          onSelect={setActiveBrand}
-          label="KURT & THE GANG"
-        >
-          <div className="text-right leading-tight">
-            <span className="font-display block text-xs uppercase tracking-[0.2em] opacity-80">
-              KATG
+          <div
+            className="flex w-full min-w-0 items-center justify-center rounded-md bg-surface px-2 sm:px-3"
+            aria-hidden
+          >
+            <span className="font-display hidden text-xs uppercase tracking-[0.28em] text-accent-gold sm:block sm:text-sm">
+              ★ Austropop ★
             </span>
-            <span className="font-display block text-base uppercase tracking-wide sm:text-lg">
-              Kurt & The Gang
+            <span className="font-display text-sm text-accent-gold sm:hidden">
+              ◆
             </span>
           </div>
-        </BrandButton>
+
+          <div className="flex justify-end">
+          <BrandButton
+            brand="katg"
+            activeBrand={activeBrand}
+            onSelect={setActiveBrand}
+            label="KURT & THE GANG"
+          >
+            <div className="text-right leading-none">
+              <span className="font-display block text-lg uppercase tracking-wide sm:text-xl md:hidden">
+                KATG
+              </span>
+              <span className="font-display hidden text-xs uppercase tracking-[0.18em] opacity-80 md:block">
+                KATG
+              </span>
+              <span className="font-display hidden text-base uppercase tracking-wide sm:text-lg md:block">
+                Kurt & The Gang
+              </span>
+            </div>
+          </BrandButton>
+          </div>
+        </div>
       </div>
     </motion.nav>
   );
@@ -75,19 +97,19 @@ function BrandButton({
   children: React.ReactNode;
 }) {
   const isActive = activeBrand === brand;
+  const meta = BRAND_META[brand];
 
   return (
     <button
       type="button"
-      aria-label={label}
-      aria-pressed={isActive}
+      role="tab"
+      aria-label={isActive ? `${label} (aktiv)` : `Zu ${label} wechseln`}
+      aria-selected={isActive}
       onClick={() => onSelect(brand)}
-      className={`cursor-pointer rounded-sm px-2 py-2 transition sm:px-3 ${
+      className={`flex shrink-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-md border-2 p-2.5 transition sm:p-3 ${meta.accentBorder} ${
         isActive
-          ? brand === "r2-live"
-            ? "bg-accent-r2 text-white shadow-[inset_0_2px_0_rgba(255,255,255,0.15)]"
-            : "bg-accent-katg text-white shadow-[inset_0_2px_0_rgba(255,255,255,0.15)]"
-          : "text-foreground hover:bg-black/5"
+          ? `${meta.accentBg} text-white ${meta.accentShadow}`
+          : `${meta.bandBg} ${meta.accentText} ${meta.inactiveShadow} hover:-translate-y-px hover:shadow-[3px_3px_0_rgba(42,31,20,0.2)]`
       }`}
     >
       {children}

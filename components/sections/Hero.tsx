@@ -41,7 +41,7 @@ export function HeroSection({
           </h1>
           {profile.heroVideo ? (
             <video
-              className="retro-card mt-8 max-w-xl rounded-sm"
+              className="retro-card mt-8 max-w-xl rounded-md"
               controls
               playsInline
               poster={profile.heroImage}

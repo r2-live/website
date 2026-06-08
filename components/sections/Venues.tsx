@@ -15,7 +15,7 @@ export function VenuesSection({ venues }: { venues: VenueItem[] }) {
         <div className="retro-card-grid">
           {venues.map((venue) => {
             const card = (
-              <article className="retro-card w-full overflow-hidden rounded-sm transition">
+              <article className="retro-card w-full overflow-hidden rounded-md transition">
                 <div className="relative aspect-[2/1] bg-[#e8dcc4]">
                   {venue.image ? (
                     <Image

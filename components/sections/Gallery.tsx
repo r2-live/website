@@ -28,7 +28,7 @@ export function GallerySection({
                 key={item.slug}
                 type="button"
                 onClick={() => setActiveIndex(index)}
-                className="retro-card group flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-sm text-left"
+                className="retro-card group flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-md text-left"
               >
                 <div className="relative min-h-[11rem] flex-1 sm:min-h-[12rem]">
                   <Image
@@ -56,7 +56,7 @@ export function GallerySection({
           aria-modal="true"
         >
           <div
-            className="retro-card relative max-h-[85vh] w-full max-w-5xl overflow-hidden rounded-sm bg-surface-dark"
+            className="retro-card relative max-h-[85vh] w-full max-w-5xl overflow-hidden rounded-md bg-surface-dark"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="relative aspect-[16/10]">
@@ -75,7 +75,7 @@ export function GallerySection({
             ) : null}
             <button
               type="button"
-              className="retro-btn absolute right-4 top-4 cursor-pointer rounded-sm bg-accent-katg px-3 py-1 text-sm text-white"
+              className="retro-btn absolute right-4 top-4 cursor-pointer rounded-md bg-accent-katg px-3 py-1 text-sm text-white"
               onClick={() => setActiveIndex(null)}
             >
               Schließen

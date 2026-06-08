@@ -40,7 +40,7 @@ export function SetlistSection({
             return (
               <article
                 key={track.slug}
-                className="retro-card rounded-sm p-5"
+                className="retro-card rounded-md p-5"
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
@@ -55,13 +55,13 @@ export function SetlistSection({
                     </audio>
                   ) : null}
                   {track.mediaType === "video" && track.mediaUrl ? (
-                    <video controls className="retro-card w-full max-w-sm rounded-sm">
+                    <video controls className="retro-card w-full max-w-sm rounded-md">
                       <source src={track.mediaUrl} />
                     </video>
                   ) : null}
                 </div>
                 {embed ? (
-                  <div className="retro-card mt-4 overflow-hidden rounded-sm">
+                  <div className="retro-card mt-4 overflow-hidden rounded-md">
                     <iframe
                       title={`${track.title} Sample`}
                       src={embed}

@@ -13,11 +13,11 @@ export function MembersSection({
     <div className="retro-section-band px-6 py-20">
       <div className="mx-auto max-w-6xl">
         <SectionHeading eyebrow={profile.shortName} title="Die Band" />
-        <div className="retro-card-grid">
+        <div className="members-grid">
           {profile.members.map((member) => (
             <article
               key={member.name}
-              className="retro-card w-full overflow-hidden rounded-sm"
+              className="retro-card w-full overflow-hidden rounded-md"
             >
               <div className="relative aspect-square bg-stone-100">
                 {member.photo ? (

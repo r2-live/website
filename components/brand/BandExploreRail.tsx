@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useBrand } from "@/components/brand/BrandProvider";
+import { BRAND_META } from "@/lib/brand-meta";
 import type { BrandSlug } from "@/lib/types";
 
 type ExploreConfig = {
@@ -42,6 +43,7 @@ export function BandExploreRail() {
   const { activeBrand, setActiveBrand, navVisible } = useBrand();
   const prefersReducedMotion = useReducedMotion();
   const config = EXPLORE[activeBrand];
+  const targetMeta = BRAND_META[config.target];
   const isRight = config.side === "right";
 
   return (
@@ -80,23 +82,28 @@ export function BandExploreRail() {
           <motion.button
             type="button"
             onClick={() => setActiveBrand(config.target)}
-            className={`explore-rail-tab pointer-events-auto absolute top-1/2 z-10 flex -translate-y-1/2 flex-col items-center border-2 border-foreground/15 bg-surface shadow-[4px_4px_0_rgba(42,31,20,0.35)] ${
+            style={{ y: "-50%" }}
+            className={`explore-rail-tab pointer-events-auto absolute top-1/2 z-10 flex flex-col items-center border-2 ${targetMeta.accentBorder} ${targetMeta.bandBg} ${targetMeta.inactiveShadow} hover:shadow-[3px_3px_0_rgba(42,31,20,0.2)] ${
               isRight
-                ? "right-0 origin-right rounded-l-sm border-r-0 pr-1 pl-2"
-                : "left-0 origin-left rounded-r-sm border-l-0 pr-2 pl-1"
+                ? "right-0 origin-right rounded-l-md rounded-r-none border-r-0 py-0.5 pl-2 pr-1 sm:pl-2.5 sm:pr-1.5"
+                : "left-0 origin-left rounded-r-md rounded-l-none border-l-0 py-0.5 pr-2 pl-1 sm:pr-2.5 sm:pl-1.5"
             }`}
-            whileHover={prefersReducedMotion ? undefined : { scale: 1.04 }}
-            whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
+            whileHover={
+              prefersReducedMotion ? undefined : { scale: 1.04, y: "-50%" }
+            }
+            whileTap={
+              prefersReducedMotion ? undefined : { scale: 0.98, y: "-50%" }
+            }
           >
             <span
-              className={`font-display mt-2 text-[0.55rem] uppercase tracking-[0.28em] ${config.accentMutedClass}`}
+              className={`font-display mt-1 text-xs uppercase tracking-[0.22em] sm:text-sm ${config.accentMutedClass}`}
             >
               {config.tagline}
             </span>
 
-            <span className="explore-rail-label my-2 flex h-24 w-8 items-center justify-center overflow-hidden sm:h-28 sm:w-9">
+            <span className="explore-rail-label my-0.5 flex h-[12.5rem] w-10 items-center justify-center overflow-visible sm:h-[14.5rem] sm:w-11">
               <span
-                className={`font-display inline-block whitespace-nowrap text-sm uppercase tracking-[0.18em] sm:text-base ${config.accentMutedClass} ${
+                className={`font-display inline-block whitespace-nowrap text-xl uppercase tracking-[0.1em] sm:text-2xl ${config.accentMutedClass} ${
                   isRight ? "-rotate-90" : "rotate-90"
                 }`}
               >
@@ -105,7 +112,7 @@ export function BandExploreRail() {
             </span>
 
             <motion.span
-              className={`font-display mb-2 text-xl leading-none ${config.accentMutedClass}`}
+              className={`font-display mb-1 text-2xl leading-none sm:text-3xl ${config.accentMutedClass}`}
               animate={
                 prefersReducedMotion
                   ? { opacity: 1 }
@@ -121,7 +128,7 @@ export function BandExploreRail() {
             </motion.span>
 
             <span
-              className={`mb-2 h-1 w-8 ${config.accentClass} sm:w-10`}
+              className={`mb-1 h-1 w-8 ${config.accentClass} sm:w-10`}
               aria-hidden
             />
           </motion.button>

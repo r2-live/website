@@ -63,7 +63,7 @@ export function ContactSection({ contact }: { contact: ContactInfo }) {
 
         <form
           action={formAction}
-          className="retro-card rounded-sm p-6"
+          className="retro-card rounded-md p-6"
         >
           <div className="grid gap-4">
             <label className="grid gap-2 text-sm">
@@ -71,7 +71,7 @@ export function ContactSection({ contact }: { contact: ContactInfo }) {
               <input
                 name="name"
                 required
-                className="retro-input rounded-sm px-4 py-3"
+                className="retro-input rounded-md px-4 py-3"
               />
             </label>
             <label className="grid gap-2 text-sm">
@@ -80,14 +80,14 @@ export function ContactSection({ contact }: { contact: ContactInfo }) {
                 type="email"
                 name="email"
                 required
-                className="retro-input rounded-sm px-4 py-3"
+                className="retro-input rounded-md px-4 py-3"
               />
             </label>
             <label className="grid gap-2 text-sm">
               <span>Anfrage für</span>
               <select
                 name="inquiryFor"
-                className="retro-input rounded-sm px-4 py-3"
+                className="retro-input rounded-md px-4 py-3"
                 defaultValue="beide"
               >
                 <option value="r2-live">R2-Live</option>
@@ -101,7 +101,7 @@ export function ContactSection({ contact }: { contact: ContactInfo }) {
                 name="message"
                 required
                 rows={5}
-                className="retro-input rounded-sm px-4 py-3"
+                className="retro-input rounded-md px-4 py-3"
               />
             </label>
             <input
@@ -116,7 +116,7 @@ export function ContactSection({ contact }: { contact: ContactInfo }) {
           <button
             type="submit"
             disabled={pending}
-            className="retro-btn mt-5 inline-flex rounded-sm bg-accent-katg px-5 py-3 text-sm text-white disabled:opacity-60"
+            className="retro-btn mt-5 inline-flex rounded-md bg-accent-katg px-5 py-3 text-sm text-white disabled:opacity-60"
           >
             {pending ? "Wird gesendet…" : "Nachricht senden"}
           </button>

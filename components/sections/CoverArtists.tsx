@@ -14,7 +14,7 @@ export function CoverArtistsSection({ artists }: { artists: string[] }) {
           {artists.map((artist) => (
             <span
               key={artist}
-              className="retro-badge rounded-sm px-4 py-2 text-sm text-foreground"
+              className="retro-badge rounded-md px-4 py-2 text-sm text-foreground"
             >
               {artist}
             </span>

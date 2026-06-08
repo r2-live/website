@@ -9,7 +9,7 @@ export function SectionHeading({
 }) {
   return (
     <div className="mx-auto mb-10 max-w-3xl text-center">
-      <p className="retro-badge mb-4 inline-block rounded-sm px-3 py-1 text-[0.7rem]">
+      <p className="retro-badge retro-badge-eyebrow mb-4 inline-block px-4 py-1.5 text-[0.7rem]">
         ★ {eyebrow} ★
       </p>
       <h2 className="font-display text-4xl uppercase leading-none text-foreground sm:text-5xl">

@@ -33,7 +33,7 @@ export function EventsSection({ events }: { events: EventItem[] }) {
             {events.map((event) => (
               <article
                 key={event.slug}
-                className="retro-card rounded-sm p-6"
+                className="retro-card rounded-md p-6"
               >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
