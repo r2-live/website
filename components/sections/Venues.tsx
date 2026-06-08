@@ -12,17 +12,17 @@ export function VenuesSection({ venues }: { venues: VenueItem[] }) {
           title="Spielorte"
           description="Ein Auszug der Bühnen und Locations, auf denen wir bereits gespielt haben."
         />
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="retro-card-grid">
           {venues.map((venue) => {
             const card = (
-              <article className="overflow-hidden rounded-3xl border border-border bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-                <div className="relative aspect-[2/1] bg-stone-100">
+              <article className="retro-card w-full overflow-hidden rounded-sm transition">
+                <div className="relative aspect-[2/1] bg-[#e8dcc4]">
                   {venue.image ? (
                     <Image
                       src={venue.image}
                       alt={venue.name}
                       fill
-                      className="object-cover"
+                      className="retro-photo object-cover"
                       sizes="(max-width: 768px) 100vw, 50vw"
                     />
                   ) : (
@@ -32,7 +32,9 @@ export function VenuesSection({ venues }: { venues: VenueItem[] }) {
                   )}
                 </div>
                 <div className="p-5">
-                  <h3 className="text-lg font-semibold">{venue.name}</h3>
+                  <h3 className="font-display text-xl uppercase tracking-wide">
+                    {venue.name}
+                  </h3>
                 </div>
               </article>
             );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import { BandExploreRail } from "@/components/brand/BandExploreRail";
 import { BrandProvider, useBrand } from "@/components/brand/BrandProvider";
 import { SweepTransition } from "@/components/brand/SweepTransition";
 import { BrandNav } from "@/components/nav/BrandNav";
@@ -26,11 +27,13 @@ function HomePageContent({ content }: { content: SiteContent }) {
   return (
     <>
       <BrandNav />
+      <BandExploreRail />
       <SweepTransition />
       <main>
         <BandZone content={content} />
 
-        <section ref={sharedZoneRef}>
+        <section ref={sharedZoneRef} id="gemeinsam" className="retro-section-shared">
+          <div className="retro-divider py-10">Gemeinsam on stage</div>
           <CoverArtistsSection artists={content.coverArtists} />
           <EventsSection events={content.events} />
           <VenuesSection venues={content.venues} />

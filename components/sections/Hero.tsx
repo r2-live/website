@@ -8,6 +8,9 @@ export function HeroSection({
   band: BrandSlug;
   profile: BandProfile;
 }) {
+  const overlayClass =
+    band === "katg" ? "retro-hero-overlay-katg" : "retro-hero-overlay-r2";
+
   return (
     <div className="relative overflow-hidden">
       <div className="relative min-h-[72vh]">
@@ -17,21 +20,28 @@ export function HeroSection({
             alt={profile.displayName}
             fill
             priority
-            className="object-cover"
+            className="retro-photo object-cover"
             sizes="100vw"
           />
         ) : null}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/10" />
+        <div className={`absolute inset-0 ${overlayClass}`} />
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.4) 2px, rgba(0,0,0,0.4) 4px)",
+          }}
+        />
         <div className="relative mx-auto flex min-h-[72vh] max-w-6xl flex-col justify-end px-6 pb-16 pt-28">
-          <p className="mb-3 text-sm uppercase tracking-[0.28em] text-white/70">
-            {profile.shortName}
+          <p className="font-display mb-3 text-sm uppercase tracking-[0.35em] text-accent-gold">
+            ★ {profile.shortName} ★
           </p>
-          <h1 className="max-w-3xl font-display text-4xl font-semibold tracking-tight text-white sm:text-6xl">
+          <h1 className="font-display max-w-3xl text-5xl uppercase leading-[0.95] text-white drop-shadow-[3px_3px_0_rgba(0,0,0,0.35)] sm:text-7xl">
             {profile.tagline}
           </h1>
           {profile.heroVideo ? (
             <video
-              className="mt-8 max-w-xl rounded-2xl border border-white/20 shadow-2xl"
+              className="retro-card mt-8 max-w-xl rounded-sm"
               controls
               playsInline
               poster={profile.heroImage}

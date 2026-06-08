@@ -46,7 +46,6 @@ export function BandPushTransition({
           isActive={activeBrand === "katg"}
           isSweeping={isSweeping}
           duration={duration}
-          className="-ml-px"
         >
           {katg}
         </BandPane>
@@ -75,7 +74,8 @@ function BandPane({
 
   return (
     <motion.div
-      className={`w-1/2 shrink-0 origin-center [backface-visibility:hidden] ${className ?? ""}`}
+      className={`band-zone-chrome w-1/2 shrink-0 origin-center [backface-visibility:hidden] ${className ?? ""}`}
+      data-brand={brand}
       aria-hidden={!isActive && !isSweeping}
       inert={!isActive && !isSweeping ? true : undefined}
       initial={false}
@@ -83,13 +83,11 @@ function BandPane({
         prefersReducedMotion
           ? { scale: 1, opacity: 1, filter: "brightness(1)" }
           : {
-              scale: isOutgoing ? 0.975 : 1,
               opacity: isOutgoing ? 0.82 : 1,
               filter: isOutgoing ? "brightness(0.94)" : "brightness(1)",
             }
       }
       transition={{ duration, ease: BAND_TRANSITION_EASE }}
-      data-brand-pane={brand}
     >
       {children}
     </motion.div>

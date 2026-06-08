@@ -17,9 +17,9 @@ export function BrandNav() {
         pointerEvents: navVisible ? "auto" : "none",
       }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className="fixed top-4 left-1/2 z-50 w-[min(92vw,720px)] -translate-x-1/2"
+      className="fixed top-4 left-1/2 z-50 w-[min(94vw,740px)] -translate-x-1/2"
     >
-      <div className="flex items-center justify-between gap-3 rounded-full border border-border bg-surface px-3 py-2 shadow-[0_20px_60px_rgba(28,25,23,0.12)] backdrop-blur-xl">
+      <div className="retro-card flex items-center justify-between gap-2 rounded-sm px-3 py-2.5 sm:gap-4 sm:px-4 sm:py-3">
         <BrandButton
           brand="r2-live"
           activeBrand={activeBrand}
@@ -29,16 +29,16 @@ export function BrandNav() {
           <img
             src="/media/r2-live/logo.svg"
             alt="R2-Live"
-            width={120}
-            height={48}
-            className={`h-10 w-auto object-contain ${
+            width={140}
+            height={56}
+            className={`h-11 w-auto object-contain sm:h-14 ${
               activeBrand === "r2-live" ? "brightness-0 invert" : ""
             }`}
           />
         </BrandButton>
 
-        <span className="hidden text-xs uppercase tracking-[0.24em] text-muted sm:block">
-          Austropop
+        <span className="font-display hidden text-[0.65rem] uppercase tracking-[0.35em] text-accent-gold sm:block">
+          ★ Austropop ★
         </span>
 
         <BrandButton
@@ -48,11 +48,11 @@ export function BrandNav() {
           label="KURT & THE GANG"
         >
           <div className="text-right leading-tight">
-            <span className="block text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-muted">
+            <span className="font-display block text-xs uppercase tracking-[0.2em] opacity-80">
               KATG
             </span>
-            <span className="block text-sm font-semibold sm:text-base">
-              KURT & THE GANG
+            <span className="font-display block text-base uppercase tracking-wide sm:text-lg">
+              Kurt & The Gang
             </span>
           </div>
         </BrandButton>
@@ -82,11 +82,11 @@ function BrandButton({
       aria-label={label}
       aria-pressed={isActive}
       onClick={() => onSelect(brand)}
-      className={`rounded-full px-3 py-2 transition-colors ${
+      className={`cursor-pointer rounded-sm px-2 py-2 transition sm:px-3 ${
         isActive
           ? brand === "r2-live"
-            ? "bg-accent-r2 text-white"
-            : "bg-accent-katg text-white"
+            ? "bg-accent-r2 text-white shadow-[inset_0_2px_0_rgba(255,255,255,0.15)]"
+            : "bg-accent-katg text-white shadow-[inset_0_2px_0_rgba(255,255,255,0.15)]"
           : "text-foreground hover:bg-black/5"
       }`}
     >

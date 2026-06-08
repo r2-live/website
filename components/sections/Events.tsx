@@ -33,16 +33,18 @@ export function EventsSection({ events }: { events: EventItem[] }) {
             {events.map((event) => (
               <article
                 key={event.slug}
-                className="rounded-3xl border border-border bg-white/80 p-6 shadow-sm"
+                className="retro-card rounded-sm p-6"
               >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
-                    <h3 className="text-xl font-semibold">{event.name}</h3>
+                    <h3 className="font-display text-2xl uppercase tracking-wide">
+                      {event.name}
+                    </h3>
                     <p className="mt-1 text-muted">
                       {event.venue} · {event.location}
                     </p>
                   </div>
-                  <p className="text-sm font-medium">
+                  <p className="font-display text-sm uppercase tracking-wider text-accent-katg">
                     {formatDate(event.date, event.time)}
                   </p>
                 </div>

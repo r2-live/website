@@ -63,7 +63,7 @@ export function ContactSection({ contact }: { contact: ContactInfo }) {
 
         <form
           action={formAction}
-          className="rounded-3xl border border-border bg-white/80 p-6 shadow-sm"
+          className="retro-card rounded-sm p-6"
         >
           <div className="grid gap-4">
             <label className="grid gap-2 text-sm">
@@ -71,7 +71,7 @@ export function ContactSection({ contact }: { contact: ContactInfo }) {
               <input
                 name="name"
                 required
-                className="rounded-2xl border border-border bg-white px-4 py-3 outline-none ring-0 focus:border-accent-katg"
+                className="retro-input rounded-sm px-4 py-3"
               />
             </label>
             <label className="grid gap-2 text-sm">
@@ -80,14 +80,14 @@ export function ContactSection({ contact }: { contact: ContactInfo }) {
                 type="email"
                 name="email"
                 required
-                className="rounded-2xl border border-border bg-white px-4 py-3 outline-none ring-0 focus:border-accent-katg"
+                className="retro-input rounded-sm px-4 py-3"
               />
             </label>
             <label className="grid gap-2 text-sm">
               <span>Anfrage für</span>
               <select
                 name="inquiryFor"
-                className="rounded-2xl border border-border bg-white px-4 py-3 outline-none ring-0 focus:border-accent-katg"
+                className="retro-input rounded-sm px-4 py-3"
                 defaultValue="beide"
               >
                 <option value="r2-live">R2-Live</option>
@@ -101,7 +101,7 @@ export function ContactSection({ contact }: { contact: ContactInfo }) {
                 name="message"
                 required
                 rows={5}
-                className="rounded-2xl border border-border bg-white px-4 py-3 outline-none ring-0 focus:border-accent-katg"
+                className="retro-input rounded-sm px-4 py-3"
               />
             </label>
             <input
@@ -116,7 +116,7 @@ export function ContactSection({ contact }: { contact: ContactInfo }) {
           <button
             type="submit"
             disabled={pending}
-            className="mt-5 inline-flex rounded-full bg-accent-katg px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
+            className="retro-btn mt-5 inline-flex rounded-sm bg-accent-katg px-5 py-3 text-sm text-white disabled:opacity-60"
           >
             {pending ? "Wird gesendet…" : "Nachricht senden"}
           </button>

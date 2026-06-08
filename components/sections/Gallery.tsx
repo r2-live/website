@@ -19,29 +19,29 @@ export function GallerySection({
 
   return (
     <>
-      <div className="px-6 py-20">
+      <div className="retro-section-band px-6 py-20">
         <div className="mx-auto max-w-6xl">
           <SectionHeading eyebrow={bandName} title="Galerie" />
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="retro-card-grid">
             {items.map((item, index) => (
               <button
                 key={item.slug}
                 type="button"
                 onClick={() => setActiveIndex(index)}
-                className="group overflow-hidden rounded-3xl border border-border bg-white text-left shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+                className="retro-card group flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-sm text-left"
               >
-                <div className="relative aspect-[4/3]">
+                <div className="relative min-h-[11rem] flex-1 sm:min-h-[12rem]">
                   <Image
                     src={item.image}
                     alt={item.caption || bandName}
                     fill
-                    className="object-cover transition duration-500 group-hover:scale-105"
+                    className="retro-photo object-cover transition duration-500 group-hover:scale-[1.03]"
                     sizes="(max-width: 768px) 100vw, 33vw"
                   />
                 </div>
-                {item.caption ? (
-                  <p className="p-4 text-sm text-muted">{item.caption}</p>
-                ) : null}
+                <p className="min-h-[4.5rem] shrink-0 p-4 text-sm text-muted">
+                  {item.caption || "\u00A0"}
+                </p>
               </button>
             ))}
           </div>
@@ -50,13 +50,13 @@ export function GallerySection({
 
       {activeItem ? (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-6"
+          className="fixed inset-0 z-[60] flex cursor-pointer items-center justify-center bg-black/80 p-6"
           onClick={() => setActiveIndex(null)}
           role="dialog"
           aria-modal="true"
         >
           <div
-            className="relative max-h-[85vh] w-full max-w-5xl overflow-hidden rounded-3xl bg-black"
+            className="retro-card relative max-h-[85vh] w-full max-w-5xl overflow-hidden rounded-sm bg-surface-dark"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="relative aspect-[16/10]">
@@ -75,7 +75,7 @@ export function GallerySection({
             ) : null}
             <button
               type="button"
-              className="absolute right-4 top-4 rounded-full bg-white/10 px-3 py-1 text-sm text-white"
+              className="retro-btn absolute right-4 top-4 cursor-pointer rounded-sm bg-accent-katg px-3 py-1 text-sm text-white"
               onClick={() => setActiveIndex(null)}
             >
               Schließen

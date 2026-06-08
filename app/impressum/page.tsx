@@ -6,10 +6,13 @@ export default function ImpressumPage() {
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
-      <Link href="/" className="text-sm text-muted hover:text-foreground">
-        ← Zurück zur Startseite
+      <Link
+        href="/"
+        className="font-display text-sm uppercase tracking-widest text-muted hover:text-accent-katg"
+      >
+        ← Zurück
       </Link>
-      <h1 className="mt-6 font-display text-4xl font-semibold">{page.title}</h1>
+      <h1 className="font-display mt-6 text-5xl uppercase">{page.title}</h1>
       <div
         className="prose-legal mt-8 space-y-4"
         dangerouslySetInnerHTML={{
