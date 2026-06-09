@@ -87,7 +87,7 @@ export function BandExploreRail() {
                 ? "Zu Kurt & The Gang wechseln"
                 : "Zu R2-Live wechseln"
             }
-            className={`explore-rail-tab pointer-events-auto absolute bottom-6 top-auto z-10 flex -translate-y-0 flex-col items-center border-2 sm:tall:bottom-8 lg:bottom-auto lg:top-1/2 lg:-translate-y-1/2 ${targetMeta.accentBorder} ${targetMeta.bandBg} ${targetMeta.inactiveShadow} hover:shadow-[3px_3px_0_rgba(42,31,20,0.2)] ${
+            className={`explore-rail-tab pointer-events-auto absolute top-auto z-10 flex max-lg:translate-none flex-col items-center border-2 max-lg:bottom-6 sm:tall:max-lg:bottom-8 lg:bottom-auto lg:top-1/2 lg:-translate-y-1/2 ${targetMeta.accentBorder} ${targetMeta.bandBg} ${targetMeta.inactiveShadow} hover:shadow-[3px_3px_0_rgba(42,31,20,0.2)] ${
               isRight
                 ? "right-0 origin-right rounded-l-md rounded-r-none border-r-0 py-2.5 pl-1.5 pr-1 sm:tall:py-1 sm:tall:pl-3 sm:tall:pr-2"
                 : "left-0 origin-left rounded-r-md rounded-l-none border-l-0 py-2.5 pr-1.5 pl-1 sm:tall:py-1 sm:tall:pr-3 sm:tall:pl-2"
