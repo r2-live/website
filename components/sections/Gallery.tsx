@@ -8,12 +8,14 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  type RefObject,
 } from "react";
 import type { BrandSlug, GalleryItem } from "@/lib/types";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 const SWIPE_THRESHOLD = 48;
 const THUMB_GAP_PX = 12;
+const MOBILE_GALLERY_MQ = "(max-width: 768px)";
 const SLIDE_TRANSITION = { duration: 0.4, ease: [0.65, 0, 0.35, 1] as const };
 
 const slideVariants = {
@@ -38,7 +40,43 @@ function getSlideDirection(current: number, next: number, count: number) {
   return forward <= backward ? 1 : -1;
 }
 
-function getThumbnailTrackX({
+function readSectionPaddingX() {
+  const raw = getComputedStyle(document.documentElement)
+    .getPropertyValue("--section-padding-x")
+    .trim();
+  if (raw.endsWith("rem")) {
+    const rootFontSize = parseFloat(
+      getComputedStyle(document.documentElement).fontSize,
+    );
+    return parseFloat(raw) * rootFontSize;
+  }
+  if (raw.endsWith("px")) {
+    return parseFloat(raw);
+  }
+  return 24;
+}
+
+function getThumbnailEdgeInsets(
+  outerRect: DOMRect,
+  alignmentRect: DOMRect,
+): { left: number; right: number } {
+  const sectionPadding = readSectionPaddingX();
+  const viewportWidth = document.documentElement.clientWidth;
+
+  if (window.matchMedia(MOBILE_GALLERY_MQ).matches) {
+    return {
+      left: Math.max(0, alignmentRect.left - outerRect.left),
+      right: Math.max(0, outerRect.right - alignmentRect.right),
+    };
+  }
+
+  return {
+    left: Math.max(0, sectionPadding - outerRect.left),
+    right: Math.max(0, outerRect.right - (viewportWidth - sectionPadding)),
+  };
+}
+
+function getThumbnailLayout({
   containerWidth,
   thumbWidth,
   itemCount,
@@ -51,33 +89,23 @@ function getThumbnailTrackX({
 }) {
   const totalWidth =
     itemCount * thumbWidth + Math.max(0, itemCount - 1) * THUMB_GAP_PX;
+
   if (totalWidth <= containerWidth) {
-    return (containerWidth - totalWidth) / 2;
+    const trackX = (containerWidth - totalWidth) / 2;
+    return { trackX, minX: trackX, maxX: trackX };
   }
+
   const activeCenter =
     activeIndex * (thumbWidth + THUMB_GAP_PX) + thumbWidth / 2;
   const idealX = containerWidth / 2 - activeCenter;
   const minX = containerWidth - totalWidth;
   const maxX = 0;
-  return Math.max(minX, Math.min(maxX, idealX));
-}
 
-function getThumbnailScrollBounds({
-  containerWidth,
-  thumbWidth,
-  itemCount,
-}: {
-  containerWidth: number;
-  thumbWidth: number;
-  itemCount: number;
-}) {
-  const totalWidth =
-    itemCount * thumbWidth + Math.max(0, itemCount - 1) * THUMB_GAP_PX;
-  if (totalWidth <= containerWidth) {
-    const centered = (containerWidth - totalWidth) / 2;
-    return { minX: centered, maxX: centered };
-  }
-  return { minX: containerWidth - totalWidth, maxX: 0 };
+  return {
+    trackX: Math.max(minX, Math.min(maxX, idealX)),
+    minX,
+    maxX,
+  };
 }
 
 function clampTrackX(value: number, minX: number, maxX: number) {
@@ -135,13 +163,16 @@ function GalleryThumbnailStrip({
   onSelect,
   accentTextClass,
   reducedMotion,
+  alignmentRef,
 }: {
   items: GalleryItem[];
   index: number;
   onSelect: (itemIndex: number) => void;
   accentTextClass: string;
   reducedMotion: boolean;
+  alignmentRef: RefObject<HTMLDivElement | null>;
 }) {
+  const outerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const thumbRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -156,36 +187,40 @@ function GalleryThumbnailStrip({
     pointerType: "",
   });
   const [trackX, setTrackX] = useState(0);
+  const [edgeInsets, setEdgeInsets] = useState({ left: 0, right: 0 });
   const [isManualScroll, setIsManualScroll] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
   trackXRef.current = trackX;
 
   const updateTrackPosition = useCallback(() => {
+    const outer = outerRef.current;
     const container = containerRef.current;
+    const alignment = alignmentRef.current;
     const thumb = thumbRefs.current[0];
-    if (!container || !thumb) return;
+    if (!outer || !container || !alignment || !thumb) return;
+
+    const outerRect = outer.getBoundingClientRect();
+    const alignmentRect = alignment.getBoundingClientRect();
+    const insets = getThumbnailEdgeInsets(outerRect, alignmentRect);
+    setEdgeInsets(insets);
 
     const containerWidth = container.clientWidth;
     const thumbWidth = thumb.offsetWidth;
 
-    scrollBoundsRef.current = getThumbnailScrollBounds({
+    const layout = getThumbnailLayout({
       containerWidth,
       thumbWidth,
       itemCount: items.length,
+      activeIndex: index,
     });
 
+    scrollBoundsRef.current = { minX: layout.minX, maxX: layout.maxX };
+
     if (!isManualScroll) {
-      setTrackX(
-        getThumbnailTrackX({
-          containerWidth,
-          thumbWidth,
-          itemCount: items.length,
-          activeIndex: index,
-        }),
-      );
+      setTrackX(layout.trackX);
     }
-  }, [index, isManualScroll, items.length]);
+  }, [alignmentRef, index, isManualScroll, items.length]);
 
   useLayoutEffect(() => {
     setIsManualScroll(false);
@@ -196,18 +231,26 @@ function GalleryThumbnailStrip({
   }, [updateTrackPosition, items.length, isManualScroll]);
 
   useEffect(() => {
+    const outer = outerRef.current;
     const container = containerRef.current;
-    if (!container) return;
+    const alignment = alignmentRef.current;
+    if (!outer || !container || !alignment) return;
 
+    const mobileQuery = window.matchMedia(MOBILE_GALLERY_MQ);
     const observer = new ResizeObserver(updateTrackPosition);
+    observer.observe(outer);
     observer.observe(container);
+    observer.observe(alignment);
 
-    window.addEventListener("resize", updateTrackPosition);
+    const handleLayoutChange = () => updateTrackPosition();
+    window.addEventListener("resize", handleLayoutChange);
+    mobileQuery.addEventListener("change", handleLayoutChange);
     return () => {
       observer.disconnect();
-      window.removeEventListener("resize", updateTrackPosition);
+      window.removeEventListener("resize", handleLayoutChange);
+      mobileQuery.removeEventListener("change", handleLayoutChange);
     };
-  }, [updateTrackPosition]);
+  }, [alignmentRef, updateTrackPosition]);
 
   const handleStripPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     if (event.button !== 0) return;
@@ -286,59 +329,68 @@ function GalleryThumbnailStrip({
 
   return (
     <div
-      ref={containerRef}
-      className={`relative left-1/2 mt-6 w-screen -translate-x-1/2 touch-none overflow-hidden px-3 pb-1 select-none sm:px-4 ${
-        isDragging ? "cursor-grabbing" : "cursor-grab"
-      }`}
-      role="tablist"
-      aria-label="Galerie-Vorschau"
-      onPointerDownCapture={handleStripPointerDown}
-      onPointerMoveCapture={handleStripPointerMove}
-      onPointerUp={handleStripPointerUp}
-      onPointerCancel={handleStripPointerUp}
+      ref={outerRef}
+      className="relative left-1/2 mt-6 w-screen -translate-x-1/2"
     >
-      <motion.div
-        ref={trackRef}
-        className="flex w-max gap-3"
-        animate={{ x: trackX }}
-        transition={
-          isDragging || reducedMotion ? { duration: 0 } : SLIDE_TRANSITION
-        }
+      <div
+        ref={containerRef}
+        className={`touch-none overflow-hidden pb-1 select-none ${
+          isDragging ? "cursor-grabbing" : "cursor-grab"
+        }`}
+        style={{
+          paddingLeft: edgeInsets.left,
+          paddingRight: edgeInsets.right,
+        }}
+        role="tablist"
+        aria-label="Galerie-Vorschau"
+        onPointerDownCapture={handleStripPointerDown}
+        onPointerMoveCapture={handleStripPointerMove}
+        onPointerUp={handleStripPointerUp}
+        onPointerCancel={handleStripPointerUp}
       >
-        {items.map((item, itemIndex) => {
-          const isActive = itemIndex === index;
-          return (
-            <button
-              key={item.slug}
-              data-gallery-thumb=""
-              ref={(element) => {
-                thumbRefs.current[itemIndex] = element;
-              }}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              aria-label={item.caption || `Bild ${itemIndex + 1}`}
-              onClick={() => {
-                if (dragStateRef.current.didDrag) return;
-                onSelect(itemIndex);
-              }}
-              className={`retro-card relative h-20 w-28 shrink-0 overflow-hidden rounded-md border-2 transition sm:h-24 sm:w-32 ${
-                isActive
-                  ? `border-current ${accentTextClass}`
-                  : "border-transparent opacity-70 hover:opacity-100"
-              } ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
-            >
-              <GalleryImage
-                src={item.image}
-                alt=""
-                className="object-cover"
-                sizes="6rem"
-                draggable={false}
-              />
-            </button>
-          );
-        })}
-      </motion.div>
+        <motion.div
+          ref={trackRef}
+          className="flex w-max gap-3"
+          animate={{ x: trackX }}
+          transition={
+            isDragging || reducedMotion ? { duration: 0 } : SLIDE_TRANSITION
+          }
+        >
+          {items.map((item, itemIndex) => {
+            const isActive = itemIndex === index;
+            return (
+              <button
+                key={item.slug}
+                data-gallery-thumb=""
+                ref={(element) => {
+                  thumbRefs.current[itemIndex] = element;
+                }}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                aria-label={item.caption || `Bild ${itemIndex + 1}`}
+                onClick={() => {
+                  if (dragStateRef.current.didDrag) return;
+                  onSelect(itemIndex);
+                }}
+                className={`retro-card relative h-20 w-28 shrink-0 overflow-hidden rounded-md border-2 transition sm:h-24 sm:w-32 ${
+                  isActive
+                    ? `border-current ${accentTextClass}`
+                    : "border-transparent opacity-70 hover:opacity-100"
+                } ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+              >
+                <GalleryImage
+                  src={item.image}
+                  alt=""
+                  className="object-cover"
+                  sizes="6rem"
+                  draggable={false}
+                />
+              </button>
+            );
+          })}
+        </motion.div>
+      </div>
     </div>
   );
 }
@@ -392,7 +444,7 @@ export function GallerySection({
 }) {
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(1);
-  const carouselRef = useRef<HTMLDivElement>(null);
+  const galleryCardRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
   const suppressImageClickRef = useRef(false);
   const prefersReducedMotion = useReducedMotion();
@@ -459,16 +511,23 @@ export function GallerySection({
 
   return (
     <>
-      <div className="retro-section-band section-padding">
-        <div className="mx-auto max-w-6xl">
-          <SectionHeading eyebrow={bandName} title="Galerie" />
+      <div className="retro-section-band">
+        <div
+          className={
+            itemCount > 1
+              ? "section-padding-x pt-[var(--section-padding-y)]"
+              : "section-padding"
+          }
+        >
+          <div className="mx-auto max-w-6xl">
+            <SectionHeading eyebrow={bandName} title="Galerie" />
 
-          <div className="mx-auto max-w-4xl">
-            <div
-              ref={carouselRef}
-              className="retro-card overflow-hidden rounded-md"
-            >
+            <div className="mx-auto max-w-4xl">
               <div
+                ref={galleryCardRef}
+                className="retro-card overflow-hidden rounded-md"
+              >
+                <div
                 className="relative touch-pan-y"
                 onTouchStart={(event) =>
                   handleTouchStart(event.changedTouches[0]?.clientX ?? 0)
@@ -545,23 +604,25 @@ export function GallerySection({
                     {activeItem.caption || "\u00A0"}
                   </motion.p>
                 </AnimatePresence>
+                </div>
               </div>
             </div>
-
           </div>
         </div>
 
         {itemCount > 1 ? (
-          <GalleryThumbnailStrip
-            items={items}
-            index={index}
-            onSelect={goTo}
-            accentTextClass={accentTextClass}
-            reducedMotion={!!prefersReducedMotion}
-          />
+          <div className="pb-[var(--section-padding-y)]">
+            <GalleryThumbnailStrip
+              items={items}
+              index={index}
+              onSelect={goTo}
+              accentTextClass={accentTextClass}
+              reducedMotion={!!prefersReducedMotion}
+              alignmentRef={galleryCardRef}
+            />
+          </div>
         ) : null}
       </div>
-
     </>
   );
 }
