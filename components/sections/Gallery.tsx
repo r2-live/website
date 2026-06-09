@@ -108,12 +108,15 @@ function stripLayoutChanged(previous: StripLayout, next: StripLayout) {
 function applyStripLayout(
   outer: HTMLDivElement,
   container: HTMLDivElement,
+  track: HTMLDivElement,
   layout: StripLayout,
 ) {
   outer.style.width = `${layout.width}px`;
   outer.style.marginLeft = `${layout.marginLeft}px`;
-  container.style.paddingLeft = `${layout.paddingLeft}px`;
-  container.style.paddingRight = `${layout.paddingRight}px`;
+  container.style.paddingLeft = "";
+  container.style.paddingRight = "";
+  track.style.paddingLeft = `${layout.paddingLeft}px`;
+  track.style.paddingRight = `${layout.paddingRight}px`;
 }
 
 function scrollStripTo(
@@ -219,6 +222,7 @@ function GalleryThumbnailStrip({
 }) {
   const outerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const thumbRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const ignoreScrollRef = useRef(false);
   const isManualScrollRef = useRef(false);
@@ -262,9 +266,10 @@ function GalleryThumbnailStrip({
   const updateStripLayout = useCallback(() => {
     const outer = outerRef.current;
     const container = containerRef.current;
+    const track = trackRef.current;
     const alignment = alignmentRef.current;
     const thumb = thumbRefs.current[0];
-    if (!outer || !container || !alignment || !thumb) return;
+    if (!outer || !container || !track || !alignment || !thumb) return;
 
     const stripRect = outer.getBoundingClientRect();
     const alignmentRect = alignment.getBoundingClientRect();
@@ -272,7 +277,7 @@ function GalleryThumbnailStrip({
 
     if (stripLayoutChanged(stripLayoutRef.current, nextStripLayout)) {
       stripLayoutRef.current = nextStripLayout;
-      applyStripLayout(outer, container, nextStripLayout);
+      applyStripLayout(outer, container, track, nextStripLayout);
     }
   }, [alignmentRef]);
 
@@ -329,11 +334,11 @@ function GalleryThumbnailStrip({
     <div ref={outerRef} className="relative mt-6 shrink-0">
       <div
         ref={containerRef}
-        className="gallery-thumbnail-strip overflow-x-auto overflow-y-hidden overscroll-x-auto pb-1"
+        className="gallery-thumbnail-strip overflow-x-auto overflow-y-hidden overscroll-x-none pb-1"
         role="tablist"
         aria-label="Galerie-Vorschau"
       >
-        <div className="flex w-max gap-3">
+        <div ref={trackRef} className="flex w-max gap-3">
           {items.map((item, itemIndex) => {
             const isActive = itemIndex === index;
             return (

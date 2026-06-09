@@ -33,7 +33,17 @@ export function ContactSection({ contact }: { contact: ContactInfo }) {
                 {contact.email}
               </a>
             </li>
-            {contact.phone ? <li>Telefon: {contact.phone}</li> : null}
+            {contact.phone ? (
+              <li>
+                Telefon:{" "}
+                <a
+                  href={`tel:${contact.phone.replace(/\s/g, "")}`}
+                  className="font-medium text-foreground underline-offset-4 hover:underline"
+                >
+                  {contact.phone}
+                </a>
+              </li>
+            ) : null}
             {contact.instagram ? (
               <li>
                 Instagram:{" "}

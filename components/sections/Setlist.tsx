@@ -49,7 +49,7 @@ function TrackPreview({ track }: { track: SetlistTrack }) {
       <iframe
         title={`${track.title} Sample`}
         src={preview.embed}
-        className="h-full w-full"
+        className="h-full w-full max-w-full"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen
       />
@@ -132,18 +132,18 @@ export function SetlistSection({
   }, [hasAnyPreview, selectedTrack?.slug]);
 
   return (
-    <div className="retro-section-band section-padding">
-      <div className="mx-auto max-w-6xl">
+    <div className="retro-section-band section-padding min-w-0 max-w-full overflow-x-clip">
+      <div className="mx-auto w-full min-w-0 max-w-6xl">
         <SectionHeading eyebrow={bandName} title="Hörproben" />
         <div
           className={
             hasAnyPreview
-              ? "grid gap-8 lg:grid-cols-[0.9fr_1.35fr] lg:items-start"
+              ? "grid min-w-0 gap-6 sm:gap-7 lg:grid-cols-[0.9fr_1.35fr] lg:items-start lg:gap-8"
               : "max-w-2xl"
           }
         >
           <div
-            className="setlist-panel retro-card flex min-h-0 flex-col rounded-md max-lg:overflow-visible lg:overflow-hidden"
+            className="setlist-panel retro-card flex min-h-0 min-w-0 flex-col rounded-md max-lg:overflow-visible lg:overflow-hidden"
             style={listHeight ? { height: listHeight } : undefined}
           >
             <ul
@@ -163,14 +163,14 @@ export function SetlistSection({
                       type="button"
                       onClick={() => setSelectedSlug(track.slug)}
                       aria-current={isSelected ? "true" : undefined}
-                      className={`group flex w-full items-center gap-3 px-3 py-4 text-left transition-colors sm:gap-4 sm:px-4 sm:py-5 ${
+                      className={`group flex w-full items-center gap-2.5 px-3 py-2.5 text-left transition-colors sm:gap-3 sm:py-3 md:gap-3.5 md:px-4 md:py-3.5 lg:gap-4 lg:py-4 ${
                         isSelected
                           ? "border-l-4 border-l-[var(--brand-accent)] bg-[var(--brand-tint)]"
                           : "border-l-4 border-l-transparent can-hover:hover:bg-[var(--brand-tint-section)]"
                       }`}
                     >
                       <span
-                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border font-display text-sm tabular-nums transition-colors ${
+                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border font-display text-xs tabular-nums transition-colors sm:h-9 sm:w-9 lg:h-10 lg:w-10 ${
                           isSelected
                             ? "border-[var(--brand-accent)] bg-[var(--brand-accent)] text-white"
                             : "border-[var(--brand-border)] bg-surface text-muted can-hover:group-hover:border-[var(--brand-accent)] can-hover:group-hover:text-[var(--brand-accent)]"
@@ -180,19 +180,19 @@ export function SetlistSection({
                       </span>
                       <span className="min-w-0 flex-1">
                         <span
-                          className={`block truncate font-display text-lg uppercase leading-snug tracking-wide sm:text-xl ${
+                          className={`block truncate font-display text-base uppercase leading-tight tracking-wide sm:text-lg lg:text-xl ${
                             isSelected ? "text-foreground" : "text-foreground/90"
                           }`}
                         >
                           {track.title}
                         </span>
-                        <span className="mt-1 block truncate text-sm text-muted sm:text-base">
+                        <span className="mt-px block truncate text-xs leading-snug text-muted sm:mt-0.5 sm:text-sm lg:text-base">
                           {track.originalArtist}
                         </span>
                       </span>
                       {hasPreview ? (
                         <span
-                          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 text-xs transition-colors ${
+                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-[0.65rem] transition-colors sm:h-9 sm:w-9 sm:text-xs lg:h-10 lg:w-10 ${
                             isSelected
                               ? "border-[var(--brand-accent)] bg-[var(--brand-accent)] text-white"
                               : "border-[var(--brand-border)] bg-surface text-muted can-hover:group-hover:border-[var(--brand-accent)] can-hover:group-hover:text-[var(--brand-accent)]"
@@ -202,7 +202,7 @@ export function SetlistSection({
                           ▶
                         </span>
                       ) : (
-                        <span className="h-10 w-10 shrink-0" aria-hidden />
+                        <span className="h-8 w-8 shrink-0 sm:h-9 sm:w-9 lg:h-10 lg:w-10" aria-hidden />
                       )}
                     </button>
                   </li>
@@ -214,7 +214,7 @@ export function SetlistSection({
           {hasAnyPreview && selectedTrack ? (
             <div
               ref={previewRef}
-              className="retro-card aspect-video w-full overflow-hidden rounded-md lg:sticky lg:top-24"
+              className="retro-card aspect-video w-full min-w-0 max-w-full overflow-hidden rounded-md lg:sticky lg:top-24"
             >
               <TrackPreview track={selectedTrack} />
             </div>

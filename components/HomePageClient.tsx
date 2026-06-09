@@ -30,7 +30,7 @@ function HomePageContent({ content }: { content: SiteContent }) {
       <BrandNav />
       <BandExploreRail />
       <SweepTransition />
-      <main>
+      <main className="w-full max-w-full overflow-x-clip">
         <BandZone content={content} />
 
         <section ref={sharedZoneRef} id="gemeinsam" className="retro-section-shared">

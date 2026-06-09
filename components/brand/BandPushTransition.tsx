@@ -24,7 +24,7 @@ export function BandPushTransition({
 
   return (
     <div
-      className="relative overflow-x-clip"
+      className="relative w-full max-w-full overflow-x-clip"
       aria-live="polite"
       data-transitioning={isSweeping || undefined}
     >
@@ -76,7 +76,7 @@ function BandPane({
 
   return (
     <motion.div
-      className={`band-zone-chrome w-1/2 shrink-0 origin-center [backface-visibility:hidden] ${className ?? ""}`}
+      className={`band-zone-chrome w-1/2 min-w-0 max-w-[50%] shrink-0 grow-0 basis-1/2 origin-center [backface-visibility:hidden] ${className ?? ""}`}
       data-brand={brand}
       aria-hidden={!isActive && !isSweeping}
       inert={!isActive && !isSweeping ? true : undefined}
