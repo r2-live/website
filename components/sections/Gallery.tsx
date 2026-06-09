@@ -14,9 +14,15 @@ import type { BrandSlug, GalleryItem } from "@/lib/types";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 const SWIPE_THRESHOLD = 48;
-const THUMB_GAP_PX = 12;
 const MOBILE_GALLERY_MQ = "(max-width: 768px)";
 const SLIDE_TRANSITION = { duration: 0.4, ease: [0.65, 0, 0.35, 1] as const };
+const STRIP_SCROLL_MS = SLIDE_TRANSITION.duration * 1000;
+
+const activeStripScrolls = new WeakMap<HTMLDivElement, number>();
+
+function easeOutCubic(t: number) {
+  return 1 - (1 - t) ** 3;
+}
 
 const slideVariants = {
   enter: (direction: number) => ({
@@ -110,40 +116,45 @@ function applyStripLayout(
   container.style.paddingRight = `${layout.paddingRight}px`;
 }
 
-function getThumbnailLayout({
-  containerWidth,
-  thumbWidth,
-  itemCount,
-  activeIndex,
-}: {
-  containerWidth: number;
-  thumbWidth: number;
-  itemCount: number;
-  activeIndex: number;
-}) {
-  const totalWidth =
-    itemCount * thumbWidth + Math.max(0, itemCount - 1) * THUMB_GAP_PX;
-
-  if (totalWidth <= containerWidth) {
-    const trackX = (containerWidth - totalWidth) / 2;
-    return { trackX, minX: trackX, maxX: trackX };
+function scrollStripTo(
+  container: HTMLDivElement,
+  scrollLeft: number,
+  behavior: ScrollBehavior,
+  onDone?: () => void,
+) {
+  const existing = activeStripScrolls.get(container);
+  if (existing !== undefined) {
+    cancelAnimationFrame(existing);
+    activeStripScrolls.delete(container);
   }
 
-  const activeCenter =
-    activeIndex * (thumbWidth + THUMB_GAP_PX) + thumbWidth / 2;
-  const idealX = containerWidth / 2 - activeCenter;
-  const minX = containerWidth - totalWidth;
-  const maxX = 0;
+  const maxScrollLeft = Math.max(0, container.scrollWidth - container.clientWidth);
+  const target = Math.max(0, Math.min(scrollLeft, maxScrollLeft));
 
-  return {
-    trackX: Math.max(minX, Math.min(maxX, idealX)),
-    minX,
-    maxX,
+  if (behavior === "auto" || Math.abs(container.scrollLeft - target) < 1) {
+    container.scrollLeft = target;
+    onDone?.();
+    return;
+  }
+
+  const start = container.scrollLeft;
+  const delta = target - start;
+  const startTime = performance.now();
+
+  const step = (now: number) => {
+    const progress = Math.min(1, (now - startTime) / STRIP_SCROLL_MS);
+    container.scrollLeft = start + delta * easeOutCubic(progress);
+
+    if (progress < 1) {
+      activeStripScrolls.set(container, requestAnimationFrame(step));
+      return;
+    }
+
+    activeStripScrolls.delete(container);
+    onDone?.();
   };
-}
 
-function clampTrackX(value: number, minX: number, maxX: number) {
-  return Math.max(minX, Math.min(maxX, value));
+  activeStripScrolls.set(container, requestAnimationFrame(step));
 }
 
 function GalleryImage({
@@ -208,19 +219,10 @@ function GalleryThumbnailStrip({
 }) {
   const outerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
   const thumbRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const scrollBoundsRef = useRef({ minX: 0, maxX: 0 });
-  const trackXRef = useRef(0);
-  const dragStateRef = useRef({
-    startX: 0,
-    startY: 0,
-    startTrackX: 0,
-    didDrag: false,
-    pointerId: -1,
-    pointerType: "",
-  });
-  const [trackX, setTrackX] = useState(0);
+  const ignoreScrollRef = useRef(false);
+  const isManualScrollRef = useRef(false);
+  const hasCenteredRef = useRef(false);
   const stripLayoutRef = useRef<StripLayout>({
     width: 0,
     marginLeft: 0,
@@ -228,11 +230,36 @@ function GalleryThumbnailStrip({
     paddingRight: 0,
   });
   const [isManualScroll, setIsManualScroll] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
 
-  trackXRef.current = trackX;
+  isManualScrollRef.current = isManualScroll;
 
-  const updateTrackPosition = useCallback(() => {
+  const centerActiveThumb = useCallback(
+    (behavior: ScrollBehavior = "smooth") => {
+      const container = containerRef.current;
+      const thumb = thumbRefs.current[index];
+      if (!container || !thumb) return;
+
+      const containerRect = container.getBoundingClientRect();
+      const thumbRect = thumb.getBoundingClientRect();
+      const scrollLeft =
+        container.scrollLeft +
+        (thumbRect.left - containerRect.left) -
+        (containerRect.width - thumbRect.width) / 2;
+
+      ignoreScrollRef.current = true;
+      scrollStripTo(
+        container,
+        scrollLeft,
+        reducedMotion ? "auto" : behavior,
+        () => {
+          ignoreScrollRef.current = false;
+        },
+      );
+    },
+    [index, reducedMotion],
+  );
+
+  const updateStripLayout = useCallback(() => {
     const outer = outerRef.current;
     const container = containerRef.current;
     const alignment = alignmentRef.current;
@@ -247,44 +274,35 @@ function GalleryThumbnailStrip({
       stripLayoutRef.current = nextStripLayout;
       applyStripLayout(outer, container, nextStripLayout);
     }
-
-    const containerWidth =
-      nextStripLayout.width -
-      nextStripLayout.paddingLeft -
-      nextStripLayout.paddingRight;
-    const thumbWidth = thumb.offsetWidth;
-
-    const layout = getThumbnailLayout({
-      containerWidth,
-      thumbWidth,
-      itemCount: items.length,
-      activeIndex: index,
-    });
-
-    scrollBoundsRef.current = { minX: layout.minX, maxX: layout.maxX };
-
-    if (!isManualScroll) {
-      setTrackX(layout.trackX);
-    }
-  }, [alignmentRef, index, isManualScroll, items.length]);
+  }, [alignmentRef]);
 
   useLayoutEffect(() => {
     setIsManualScroll(false);
-  }, [index]);
+    isManualScrollRef.current = false;
+    centerActiveThumb(
+      !hasCenteredRef.current || reducedMotion ? "auto" : "smooth",
+    );
+    hasCenteredRef.current = true;
+  }, [index, centerActiveThumb, reducedMotion]);
 
   useLayoutEffect(() => {
-    updateTrackPosition();
-  }, [updateTrackPosition, items.length, isManualScroll]);
+    updateStripLayout();
+  }, [updateStripLayout, items.length]);
 
   useEffect(() => {
     const alignment = alignmentRef.current;
     if (!alignment) return;
 
     const mobileQuery = window.matchMedia(MOBILE_GALLERY_MQ);
-    const observer = new ResizeObserver(updateTrackPosition);
+    const observer = new ResizeObserver(updateStripLayout);
     observer.observe(alignment);
 
-    const handleLayoutChange = () => updateTrackPosition();
+    const handleLayoutChange = () => {
+      updateStripLayout();
+      if (!isManualScrollRef.current) {
+        centerActiveThumb("auto");
+      }
+    };
     window.addEventListener("resize", handleLayoutChange);
     mobileQuery.addEventListener("change", handleLayoutChange);
     return () => {
@@ -292,106 +310,30 @@ function GalleryThumbnailStrip({
       window.removeEventListener("resize", handleLayoutChange);
       mobileQuery.removeEventListener("change", handleLayoutChange);
     };
-  }, [alignmentRef, updateTrackPosition]);
+  }, [alignmentRef, centerActiveThumb, updateStripLayout]);
 
-  const handleStripPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (event.button !== 0) return;
-
-    const container = containerRef.current;
-    dragStateRef.current = {
-      startX: event.clientX,
-      startY: event.clientY,
-      startTrackX: trackXRef.current,
-      didDrag: false,
-      pointerId: event.pointerId,
-      pointerType: event.pointerType,
-    };
-
-    if (event.pointerType === "touch" && container) {
-      container.setPointerCapture(event.pointerId);
-    }
-  };
-
-  const handleStripPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (event.pointerId !== dragStateRef.current.pointerId) return;
-
-    const deltaX = event.clientX - dragStateRef.current.startX;
-    const deltaY = event.clientY - dragStateRef.current.startY;
-    const isTouch = dragStateRef.current.pointerType === "touch";
-    const dragThreshold = isTouch ? 2 : 4;
-
-    if (!dragStateRef.current.didDrag) {
-      if (Math.abs(deltaX) < dragThreshold && Math.abs(deltaY) < dragThreshold) {
-        return;
-      }
-      if (!isTouch && Math.abs(deltaY) > Math.abs(deltaX)) {
-        return;
-      }
-    }
-
+  useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    if (!dragStateRef.current.didDrag) {
-      dragStateRef.current.didDrag = true;
-      setIsDragging(true);
-      if (!container.hasPointerCapture(event.pointerId)) {
-        container.setPointerCapture(event.pointerId);
-      }
-    }
+    const handleScroll = () => {
+      if (ignoreScrollRef.current) return;
+      setIsManualScroll(true);
+    };
 
-    event.preventDefault();
-    setIsManualScroll(true);
-    setTrackX(
-      clampTrackX(
-        dragStateRef.current.startTrackX + deltaX,
-        scrollBoundsRef.current.minX,
-        scrollBoundsRef.current.maxX,
-      ),
-    );
-  };
-
-  const handleStripPointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (event.pointerId !== dragStateRef.current.pointerId) return;
-
-    const container = containerRef.current;
-    if (container?.hasPointerCapture(event.pointerId)) {
-      container.releasePointerCapture(event.pointerId);
-    }
-
-    setIsDragging(false);
-    dragStateRef.current.pointerId = -1;
-
-    if (dragStateRef.current.didDrag) {
-      window.setTimeout(() => {
-        dragStateRef.current.didDrag = false;
-      }, 0);
-    }
-  };
+    container.addEventListener("scroll", handleScroll, { passive: true });
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <div ref={outerRef} className="relative mt-6 shrink-0">
       <div
         ref={containerRef}
-        className={`touch-none overflow-hidden pb-1 select-none ${
-          isDragging ? "cursor-grabbing" : "cursor-grab"
-        }`}
+        className="gallery-thumbnail-strip overflow-x-auto overflow-y-hidden overscroll-x-auto pb-1"
         role="tablist"
         aria-label="Galerie-Vorschau"
-        onPointerDownCapture={handleStripPointerDown}
-        onPointerMoveCapture={handleStripPointerMove}
-        onPointerUp={handleStripPointerUp}
-        onPointerCancel={handleStripPointerUp}
       >
-        <motion.div
-          ref={trackRef}
-          initial={false}
-          className="flex w-max gap-3"
-          animate={{ x: trackX }}
-          transition={
-            isDragging || reducedMotion ? { duration: 0 } : SLIDE_TRANSITION
-          }
-        >
+        <div className="flex w-max gap-3">
           {items.map((item, itemIndex) => {
             const isActive = itemIndex === index;
             return (
@@ -405,15 +347,12 @@ function GalleryThumbnailStrip({
                 role="tab"
                 aria-selected={isActive}
                 aria-label={item.caption || `Bild ${itemIndex + 1}`}
-                onClick={() => {
-                  if (dragStateRef.current.didDrag) return;
-                  onSelect(itemIndex);
-                }}
+                onClick={() => onSelect(itemIndex)}
                 className={`retro-card relative h-20 w-28 shrink-0 overflow-hidden rounded-md border-2 transition-[border-color,box-shadow,opacity] sm:h-24 sm:w-32 ${
                   isActive
                     ? `border-current ${accentTextClass}`
                     : "border-transparent opacity-70 can-hover:hover:opacity-100"
-                } ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+                }`}
               >
                 <GalleryImage
                   src={item.image}
@@ -425,7 +364,7 @@ function GalleryThumbnailStrip({
               </button>
             );
           })}
-        </motion.div>
+        </div>
       </div>
     </div>
   );

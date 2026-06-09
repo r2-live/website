@@ -263,7 +263,7 @@ summary,
 }
 
 .setlist-panel__tracks {
-  overscroll-behavior-y: auto;
+  overscroll-behavior-y: none;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--brand-border, var(--border)) 70%, transparent)
     transparent;
@@ -276,6 +276,16 @@ summary,
 .setlist-panel__tracks::-webkit-scrollbar-thumb {
   border-radius: 9999px;
   background: color-mix(in srgb, var(--brand-border, var(--border)) 70%, transparent);
+}
+
+.gallery-thumbnail-strip {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.gallery-thumbnail-strip::-webkit-scrollbar {
+  display: none;
 }
 
 .band-zone-chrome .retro-badge {

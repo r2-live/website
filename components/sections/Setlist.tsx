@@ -143,12 +143,12 @@ export function SetlistSection({
           }
         >
           <div
-            className="setlist-panel retro-card flex min-h-0 flex-col overflow-hidden rounded-md max-lg:max-h-80"
+            className="setlist-panel retro-card flex min-h-0 flex-col rounded-md max-lg:overflow-visible lg:overflow-hidden"
             style={listHeight ? { height: listHeight } : undefined}
           >
             <ul
               ref={tracksRef}
-              className="setlist-panel__tracks min-h-0 flex-1 overflow-y-auto overscroll-y-auto"
+              className="setlist-panel__tracks min-h-0 flex-1 max-lg:overflow-visible lg:overflow-y-auto lg:overscroll-y-none"
             >
               {tracks.map((track, index) => {
                 const isSelected = track.slug === selectedTrack?.slug;
