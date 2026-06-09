@@ -243,6 +243,30 @@ summary,
   box-shadow: 6px 6px 0 var(--brand-shadow);
 }
 
+.setlist-panel:hover {
+  transform: none;
+  box-shadow: 4px 4px 0 var(--retro-shadow);
+}
+
+.band-zone-chrome .setlist-panel:hover {
+  box-shadow: 4px 4px 0 var(--brand-shadow);
+}
+
+.setlist-panel__tracks {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--brand-border, var(--border)) 70%, transparent)
+    transparent;
+}
+
+.setlist-panel__tracks::-webkit-scrollbar {
+  width: 6px;
+}
+
+.setlist-panel__tracks::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--brand-border, var(--border)) 70%, transparent);
+}
+
 .band-zone-chrome .retro-badge {
   border-color: var(--brand-accent);
   color: var(--brand-accent);
