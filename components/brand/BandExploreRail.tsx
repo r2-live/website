@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useBrand } from "@/components/brand/BrandProvider";
+import { useCanHover } from "@/hooks/useCanHover";
 import { BRAND_META } from "@/lib/brand-meta";
 import type { BrandSlug } from "@/lib/types";
 
@@ -42,6 +43,7 @@ const EXPLORE: Record<BrandSlug, ExploreConfig> = {
 export function BandExploreRail() {
   const { activeBrand, setActiveBrand, navVisible } = useBrand();
   const prefersReducedMotion = useReducedMotion();
+  const canHover = useCanHover();
   const config = EXPLORE[activeBrand];
   const targetMeta = BRAND_META[config.target];
   const isRight = config.side === "right";
@@ -87,12 +89,14 @@ export function BandExploreRail() {
                 ? "Zu Kurt & The Gang wechseln"
                 : "Zu R2-Live wechseln"
             }
-            className={`explore-rail-tab pointer-events-auto absolute top-auto z-10 flex max-lg:translate-none flex-col items-center border-2 max-lg:bottom-6 sm:tall:max-lg:bottom-8 lg:bottom-auto lg:top-1/2 lg:-translate-y-1/2 ${targetMeta.accentBorder} ${targetMeta.bandBg} ${targetMeta.inactiveShadow} hover:shadow-[3px_3px_0_rgba(42,31,20,0.2)] ${
+            className={`explore-rail-tab pointer-events-auto absolute top-auto z-10 flex max-lg:translate-none flex-col items-center border-2 max-lg:bottom-6 sm:tall:max-lg:bottom-8 lg:bottom-auto lg:top-1/2 lg:-translate-y-1/2 ${targetMeta.accentBorder} ${targetMeta.bandBg} ${targetMeta.inactiveShadow} can-hover:hover:shadow-[3px_3px_0_rgba(42,31,20,0.2)] ${
               isRight
                 ? "right-0 origin-right rounded-l-md rounded-r-none border-r-0 py-2.5 pl-1.5 pr-1 sm:tall:py-1 sm:tall:pl-3 sm:tall:pr-2"
                 : "left-0 origin-left rounded-r-md rounded-l-none border-l-0 py-2.5 pr-1.5 pl-1 sm:tall:py-1 sm:tall:pr-3 sm:tall:pl-2"
             }`}
-            whileHover={prefersReducedMotion ? undefined : { scale: 1.04 }}
+            whileHover={
+              canHover && !prefersReducedMotion ? { scale: 1.04 } : undefined
+            }
             whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
           >
             <span

@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @custom-variant tall (@media (min-height: 31.25rem));
+@custom-variant can-hover (@media (hover: hover) and (pointer: fine));
 
 :root {
   --background: #f2e8d5;
@@ -110,9 +111,11 @@ summary,
     box-shadow 0.2s ease;
 }
 
-.retro-card:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 var(--retro-shadow);
+@media (hover: hover) and (pointer: fine) {
+  .retro-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--retro-shadow);
+  }
 }
 
 .retro-badge {
@@ -142,9 +145,11 @@ summary,
     box-shadow 0.15s ease;
 }
 
-.retro-btn:hover:not(:disabled) {
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 var(--retro-shadow);
+@media (hover: hover) and (pointer: fine) {
+  .retro-btn:hover:not(:disabled) {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 var(--retro-shadow);
+  }
 }
 
 .retro-btn:active:not(:disabled) {
@@ -242,8 +247,10 @@ summary,
   box-shadow: 4px 4px 0 var(--brand-shadow);
 }
 
-.band-zone-chrome .retro-card:hover {
-  box-shadow: 6px 6px 0 var(--brand-shadow);
+@media (hover: hover) and (pointer: fine) {
+  .band-zone-chrome .retro-card:hover {
+    box-shadow: 6px 6px 0 var(--brand-shadow);
+  }
 }
 
 .setlist-panel:hover {
@@ -256,6 +263,7 @@ summary,
 }
 
 .setlist-panel__tracks {
+  overscroll-behavior-y: auto;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--brand-border, var(--border)) 70%, transparent)
     transparent;

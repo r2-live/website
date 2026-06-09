@@ -412,7 +412,7 @@ function GalleryThumbnailStrip({
                 className={`retro-card relative h-20 w-28 shrink-0 overflow-hidden rounded-md border-2 transition-[border-color,box-shadow,opacity] sm:h-24 sm:w-32 ${
                   isActive
                     ? `border-current ${accentTextClass}`
-                    : "border-transparent opacity-70 hover:opacity-100"
+                    : "border-transparent opacity-70 can-hover:hover:opacity-100"
                 } ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
               >
                 <GalleryImage
@@ -541,7 +541,7 @@ export function GallerySection({
     else goNext();
   };
 
-  const navBadgeClass = `retro-btn inline-flex items-center justify-center rounded-full px-3 py-2 text-lg leading-none text-white shadow-md transition duration-200 ease-out group-hover:scale-110 group-hover:shadow-lg group-active:scale-95 ${accentClass}`;
+  const navBadgeClass = `retro-btn inline-flex items-center justify-center rounded-full px-3 py-2 text-lg leading-none text-white shadow-md transition duration-200 ease-out can-hover:group-hover:scale-110 can-hover:group-hover:shadow-lg group-active:scale-95 ${accentClass}`;
 
   if (itemCount === 0) return null;
 

@@ -3,6 +3,7 @@
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { BrandSlug, SetlistTrack } from "@/lib/types";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { useScrollChaining } from "@/hooks/useScrollChaining";
 
 function getYoutubeEmbed(url: string) {
   try {
@@ -94,7 +95,10 @@ export function SetlistSection({
   const defaultSlug = useMemo(() => getDefaultTrackSlug(tracks), [tracks]);
   const [selectedSlug, setSelectedSlug] = useState(defaultSlug);
   const previewRef = useRef<HTMLDivElement>(null);
+  const tracksRef = useRef<HTMLUListElement>(null);
   const [listHeight, setListHeight] = useState<number | null>(null);
+
+  useScrollChaining(tracksRef);
 
   const selectedTrack =
     tracks.find((track) => track.slug === selectedSlug) ?? tracks[0] ?? null;
@@ -142,7 +146,10 @@ export function SetlistSection({
             className="setlist-panel retro-card flex min-h-0 flex-col overflow-hidden rounded-md max-lg:max-h-80"
             style={listHeight ? { height: listHeight } : undefined}
           >
-            <ul className="setlist-panel__tracks min-h-0 flex-1 overflow-y-auto overscroll-contain">
+            <ul
+              ref={tracksRef}
+              className="setlist-panel__tracks min-h-0 flex-1 overflow-y-auto overscroll-y-auto"
+            >
               {tracks.map((track, index) => {
                 const isSelected = track.slug === selectedTrack?.slug;
                 const hasPreview = Boolean(getTrackPreview(track));
@@ -159,14 +166,14 @@ export function SetlistSection({
                       className={`group flex w-full items-center gap-3 px-3 py-4 text-left transition-colors sm:gap-4 sm:px-4 sm:py-5 ${
                         isSelected
                           ? "border-l-4 border-l-[var(--brand-accent)] bg-[var(--brand-tint)]"
-                          : "border-l-4 border-l-transparent hover:bg-[var(--brand-tint-section)]"
+                          : "border-l-4 border-l-transparent can-hover:hover:bg-[var(--brand-tint-section)]"
                       }`}
                     >
                       <span
                         className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border font-display text-sm tabular-nums transition-colors ${
                           isSelected
                             ? "border-[var(--brand-accent)] bg-[var(--brand-accent)] text-white"
-                            : "border-[var(--brand-border)] bg-surface text-muted group-hover:border-[var(--brand-accent)] group-hover:text-[var(--brand-accent)]"
+                            : "border-[var(--brand-border)] bg-surface text-muted can-hover:group-hover:border-[var(--brand-accent)] can-hover:group-hover:text-[var(--brand-accent)]"
                         }`}
                       >
                         {String(index + 1).padStart(2, "0")}
@@ -188,7 +195,7 @@ export function SetlistSection({
                           className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 text-xs transition-colors ${
                             isSelected
                               ? "border-[var(--brand-accent)] bg-[var(--brand-accent)] text-white"
-                              : "border-[var(--brand-border)] bg-surface text-muted group-hover:border-[var(--brand-accent)] group-hover:text-[var(--brand-accent)]"
+                              : "border-[var(--brand-border)] bg-surface text-muted can-hover:group-hover:border-[var(--brand-accent)] can-hover:group-hover:text-[var(--brand-accent)]"
                           }`}
                           aria-hidden
                         >

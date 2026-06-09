@@ -103,7 +103,7 @@ function BrandButton({
       className={`flex shrink-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-md border-2 p-2.5 transition sm:tall:p-3 ${meta.accentBorder} ${
         isActive
           ? `${meta.accentBg} text-white ${meta.accentShadow}`
-          : `${meta.bandBg} ${meta.accentText} ${meta.inactiveShadow} hover:-translate-y-px hover:shadow-[3px_3px_0_rgba(42,31,20,0.2)]`
+          : `${meta.bandBg} ${meta.accentText} ${meta.inactiveShadow} can-hover:hover:-translate-y-px can-hover:hover:shadow-[3px_3px_0_rgba(42,31,20,0.2)]`
       }`}
     >
       {children}
