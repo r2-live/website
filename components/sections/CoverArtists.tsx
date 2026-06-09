@@ -3,7 +3,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 
 export function CoverArtistsSection({ artists }: { artists: string[] }) {
   return (
-    <section id={SECTION_IDS.covers} className="section-shell px-6 py-20">
+    <section id={SECTION_IDS.covers} className="section-shell section-padding">
       <div className="mx-auto max-w-6xl">
         <SectionHeading
           eyebrow="im duo & zu viert"

@@ -8,7 +8,6 @@ import {
   useLayoutEffect,
   useRef,
   useState,
-  type RefObject,
 } from "react";
 import type { BrandSlug, GalleryItem } from "@/lib/types";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -39,46 +38,46 @@ function getSlideDirection(current: number, next: number, count: number) {
   return forward <= backward ? 1 : -1;
 }
 
-function getThumbnailMetrics({
+function getThumbnailTrackX({
   containerWidth,
   thumbWidth,
   itemCount,
   activeIndex,
-  edgeInsetLeft,
-  edgeInsetRight,
 }: {
   containerWidth: number;
   thumbWidth: number;
   itemCount: number;
   activeIndex: number;
-  edgeInsetLeft: number;
-  edgeInsetRight: number;
 }) {
   const totalWidth =
     itemCount * thumbWidth + Math.max(0, itemCount - 1) * THUMB_GAP_PX;
-  const availableWidth = containerWidth - edgeInsetLeft - edgeInsetRight;
-  const minX = containerWidth - totalWidth - edgeInsetRight;
-  const maxX = edgeInsetLeft;
-
-  if (totalWidth <= availableWidth) {
-    return {
-      totalWidth,
-      trackX: edgeInsetLeft + (availableWidth - totalWidth) / 2,
-      minX,
-      maxX,
-    };
+  if (totalWidth <= containerWidth) {
+    return (containerWidth - totalWidth) / 2;
   }
-
   const activeCenter =
     activeIndex * (thumbWidth + THUMB_GAP_PX) + thumbWidth / 2;
   const idealX = containerWidth / 2 - activeCenter;
+  const minX = containerWidth - totalWidth;
+  const maxX = 0;
+  return Math.max(minX, Math.min(maxX, idealX));
+}
 
-  return {
-    totalWidth,
-    trackX: Math.max(minX, Math.min(maxX, idealX)),
-    minX,
-    maxX,
-  };
+function getThumbnailScrollBounds({
+  containerWidth,
+  thumbWidth,
+  itemCount,
+}: {
+  containerWidth: number;
+  thumbWidth: number;
+  itemCount: number;
+}) {
+  const totalWidth =
+    itemCount * thumbWidth + Math.max(0, itemCount - 1) * THUMB_GAP_PX;
+  if (totalWidth <= containerWidth) {
+    const centered = (containerWidth - totalWidth) / 2;
+    return { minX: centered, maxX: centered };
+  }
+  return { minX: containerWidth - totalWidth, maxX: 0 };
 }
 
 function clampTrackX(value: number, minX: number, maxX: number) {
@@ -91,12 +90,14 @@ function GalleryImage({
   className,
   sizes,
   priority,
+  draggable = true,
 }: {
   src: string;
   alt: string;
   className?: string;
   sizes?: string;
   priority?: boolean;
+  draggable?: boolean;
 }) {
   const imageClassName = className ?? "object-cover";
 
@@ -106,7 +107,10 @@ function GalleryImage({
       <img
         src={src}
         alt={alt}
-        className={`absolute inset-0 h-full w-full ${imageClassName}`}
+        draggable={draggable}
+        className={`absolute inset-0 h-full w-full ${imageClassName} ${
+          draggable ? "" : "pointer-events-none select-none"
+        }`}
         loading="lazy"
       />
     );
@@ -117,7 +121,8 @@ function GalleryImage({
       src={src}
       alt={alt}
       fill
-      className={imageClassName}
+      draggable={draggable}
+      className={`${imageClassName}${draggable ? "" : " pointer-events-none select-none"}`}
       sizes={sizes}
       priority={priority}
     />
@@ -130,55 +135,57 @@ function GalleryThumbnailStrip({
   onSelect,
   accentTextClass,
   reducedMotion,
-  alignmentRef,
 }: {
   items: GalleryItem[];
   index: number;
   onSelect: (itemIndex: number) => void;
   accentTextClass: string;
   reducedMotion: boolean;
-  alignmentRef: RefObject<HTMLElement | null>;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const thumbRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const scrollBoundsRef = useRef({ minX: 0, maxX: 0 });
+  const trackXRef = useRef(0);
   const dragStateRef = useRef({
     startX: 0,
+    startY: 0,
     startTrackX: 0,
     didDrag: false,
     pointerId: -1,
+    pointerType: "",
   });
   const [trackX, setTrackX] = useState(0);
   const [isManualScroll, setIsManualScroll] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
+  trackXRef.current = trackX;
+
   const updateTrackPosition = useCallback(() => {
     const container = containerRef.current;
-    const alignment = alignmentRef.current;
     const thumb = thumbRefs.current[0];
-    if (!container || !alignment || !thumb) return;
+    if (!container || !thumb) return;
 
-    const containerRect = container.getBoundingClientRect();
-    const alignmentRect = alignment.getBoundingClientRect();
-    const metrics = getThumbnailMetrics({
-      containerWidth: containerRect.width,
-      thumbWidth: thumb.offsetWidth,
+    const containerWidth = container.clientWidth;
+    const thumbWidth = thumb.offsetWidth;
+
+    scrollBoundsRef.current = getThumbnailScrollBounds({
+      containerWidth,
+      thumbWidth,
       itemCount: items.length,
-      activeIndex: index,
-      edgeInsetLeft: alignmentRect.left - containerRect.left,
-      edgeInsetRight: containerRect.right - alignmentRect.right,
     });
 
-    scrollBoundsRef.current = {
-      minX: metrics.minX,
-      maxX: metrics.maxX,
-    };
-
     if (!isManualScroll) {
-      setTrackX(metrics.trackX);
+      setTrackX(
+        getThumbnailTrackX({
+          containerWidth,
+          thumbWidth,
+          itemCount: items.length,
+          activeIndex: index,
+        }),
+      );
     }
-  }, [alignmentRef, index, isManualScroll, items.length]);
+  }, [index, isManualScroll, items.length]);
 
   useLayoutEffect(() => {
     setIsManualScroll(false);
@@ -190,48 +197,69 @@ function GalleryThumbnailStrip({
 
   useEffect(() => {
     const container = containerRef.current;
-    const alignment = alignmentRef.current;
     if (!container) return;
 
     const observer = new ResizeObserver(updateTrackPosition);
     observer.observe(container);
-    if (alignment) observer.observe(alignment);
 
     window.addEventListener("resize", updateTrackPosition);
     return () => {
       observer.disconnect();
       window.removeEventListener("resize", updateTrackPosition);
     };
-  }, [alignmentRef, updateTrackPosition]);
+  }, [updateTrackPosition]);
 
   const handleStripPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     if (event.button !== 0) return;
 
+    const container = containerRef.current;
     dragStateRef.current = {
       startX: event.clientX,
-      startTrackX: trackX,
+      startY: event.clientY,
+      startTrackX: trackXRef.current,
       didDrag: false,
       pointerId: event.pointerId,
+      pointerType: event.pointerType,
     };
+
+    if (event.pointerType === "touch" && container) {
+      container.setPointerCapture(event.pointerId);
+    }
   };
 
   const handleStripPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
     if (event.pointerId !== dragStateRef.current.pointerId) return;
 
-    const delta = event.clientX - dragStateRef.current.startX;
-    if (Math.abs(delta) < 4) return;
+    const deltaX = event.clientX - dragStateRef.current.startX;
+    const deltaY = event.clientY - dragStateRef.current.startY;
+    const isTouch = dragStateRef.current.pointerType === "touch";
+    const dragThreshold = isTouch ? 2 : 4;
+
+    if (!dragStateRef.current.didDrag) {
+      if (Math.abs(deltaX) < dragThreshold && Math.abs(deltaY) < dragThreshold) {
+        return;
+      }
+      if (!isTouch && Math.abs(deltaY) > Math.abs(deltaX)) {
+        return;
+      }
+    }
+
+    const container = containerRef.current;
+    if (!container) return;
 
     if (!dragStateRef.current.didDrag) {
       dragStateRef.current.didDrag = true;
       setIsDragging(true);
-      event.currentTarget.setPointerCapture(event.pointerId);
+      if (!container.hasPointerCapture(event.pointerId)) {
+        container.setPointerCapture(event.pointerId);
+      }
     }
 
     event.preventDefault();
     setIsManualScroll(true);
     setTrackX(
       clampTrackX(
-        dragStateRef.current.startTrackX + delta,
+        dragStateRef.current.startTrackX + deltaX,
         scrollBoundsRef.current.minX,
         scrollBoundsRef.current.maxX,
       ),
@@ -241,8 +269,9 @@ function GalleryThumbnailStrip({
   const handleStripPointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
     if (event.pointerId !== dragStateRef.current.pointerId) return;
 
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
+    const container = containerRef.current;
+    if (container?.hasPointerCapture(event.pointerId)) {
+      container.releasePointerCapture(event.pointerId);
     }
 
     setIsDragging(false);
@@ -258,21 +287,23 @@ function GalleryThumbnailStrip({
   return (
     <div
       ref={containerRef}
-      className="relative left-1/2 mt-6 w-screen -translate-x-1/2 overflow-hidden pb-1"
+      className={`relative left-1/2 mt-6 w-screen -translate-x-1/2 touch-none overflow-hidden px-3 pb-1 select-none sm:px-4 ${
+        isDragging ? "cursor-grabbing" : "cursor-grab"
+      }`}
       role="tablist"
       aria-label="Galerie-Vorschau"
+      onPointerDownCapture={handleStripPointerDown}
+      onPointerMoveCapture={handleStripPointerMove}
+      onPointerUp={handleStripPointerUp}
+      onPointerCancel={handleStripPointerUp}
     >
       <motion.div
         ref={trackRef}
-        className={`flex w-max gap-3 ${isDragging ? "cursor-grabbing" : ""}`}
+        className="flex w-max gap-3"
         animate={{ x: trackX }}
         transition={
           isDragging || reducedMotion ? { duration: 0 } : SLIDE_TRANSITION
         }
-        onPointerDown={handleStripPointerDown}
-        onPointerMove={handleStripPointerMove}
-        onPointerUp={handleStripPointerUp}
-        onPointerCancel={handleStripPointerUp}
       >
         {items.map((item, itemIndex) => {
           const isActive = itemIndex === index;
@@ -295,13 +326,14 @@ function GalleryThumbnailStrip({
                 isActive
                   ? `border-current ${accentTextClass}`
                   : "border-transparent opacity-70 hover:opacity-100"
-              }`}
+              } ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
             >
               <GalleryImage
                 src={item.image}
                 alt=""
                 className="object-cover"
                 sizes="6rem"
+                draggable={false}
               />
             </button>
           );
@@ -427,7 +459,7 @@ export function GallerySection({
 
   return (
     <>
-      <div className="retro-section-band px-6 py-20">
+      <div className="retro-section-band section-padding">
         <div className="mx-auto max-w-6xl">
           <SectionHeading eyebrow={bandName} title="Galerie" />
 
@@ -526,7 +558,6 @@ export function GallerySection({
             onSelect={goTo}
             accentTextClass={accentTextClass}
             reducedMotion={!!prefersReducedMotion}
-            alignmentRef={carouselRef}
           />
         ) : null}
       </div>

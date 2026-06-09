@@ -23,7 +23,7 @@ export function SetlistSection({
   tracks: SetlistTrack[];
 }) {
   return (
-    <div className="retro-section-band px-6 py-20">
+    <div className="retro-section-band section-padding">
       <div className="mx-auto max-w-4xl">
         <SectionHeading
           eyebrow={bandName}

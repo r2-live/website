@@ -32,7 +32,7 @@ export function HeroSection({
               "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.4) 2px, rgba(0,0,0,0.4) 4px)",
           }}
         />
-        <div className="relative mx-auto flex min-h-[72vh] max-w-6xl flex-col justify-end px-6 pb-16 pt-28">
+        <div className="relative mx-auto flex min-h-[72vh] max-w-6xl flex-col justify-end section-padding-x pb-16 pt-28">
           <p className="font-display mb-3 text-sm uppercase tracking-[0.35em] text-accent-gold">
             ★ {profile.shortName} ★
           </p>

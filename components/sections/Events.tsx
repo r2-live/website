@@ -17,7 +17,7 @@ function formatDate(date: string, time: string) {
 
 export function EventsSection({ events }: { events: EventItem[] }) {
   return (
-    <section id={SECTION_IDS.events} className="section-shell px-6 py-20">
+    <section id={SECTION_IDS.events} className="section-shell section-padding">
       <div className="mx-auto max-w-4xl">
         <SectionHeading
           eyebrow="im duo & zu viert"

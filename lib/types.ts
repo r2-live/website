@@ -45,14 +45,6 @@ export interface EventItem {
   url?: string;
 }
 
-export interface VenueItem {
-  slug: string;
-  name: string;
-  image?: string;
-  url?: string;
-  order: number;
-}
-
 export interface ContactInfo {
   email: string;
   phone?: string;
@@ -72,7 +64,6 @@ export interface SiteContent {
   setlists: Record<BrandSlug, SetlistTrack[]>;
   coverArtists: string[];
   events: EventItem[];
-  venues: VenueItem[];
   contact: ContactInfo;
   legal: {
     impressum: LegalPage;
@@ -90,7 +81,6 @@ export const SECTION_IDS = {
   setlist: "setlist",
   covers: "covers",
   events: "events",
-  venues: "venues",
   contact: "contact",
 } as const;
 
@@ -105,6 +95,5 @@ export const BAND_SECTIONS = [
 export const SHARED_SECTIONS = [
   { id: SECTION_IDS.covers, label: "Künstler", key: "6" },
   { id: SECTION_IDS.events, label: "Termine", key: "7" },
-  { id: SECTION_IDS.venues, label: "Spielorte", key: "8" },
-  { id: SECTION_IDS.contact, label: "Kontakt", key: "9" },
+  { id: SECTION_IDS.contact, label: "Kontakt", key: "8" },
 ] as const;

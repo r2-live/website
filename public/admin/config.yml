@@ -115,20 +115,6 @@ collections:
       - { name: time, label: Uhrzeit, widget: string, pattern: ['^([01]?[0-9]|2[0-3]):[0-5][0-9]$'], hint: "Format HH:MM" }
       - { name: url, label: Link, required: false }
 
-  - name: venues
-    label: Spielorte
-    label_singular: Spielort
-    folder: content/shared/venues
-    create: true
-    slug: "{{slug}}"
-    extension: md
-    format: frontmatter
-    fields:
-      - { name: name, label: Name }
-      - { name: image, label: Bild / Logo, widget: image, required: false }
-      - { name: url, label: Link, required: false }
-      - { name: order, label: Sortierung, widget: number, default: 0, value_type: int }
-
   - name: shared
     label: Gemeinsame Inhalte
     files:

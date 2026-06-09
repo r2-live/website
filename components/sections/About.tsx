@@ -9,7 +9,7 @@ export function AboutSection({
 }) {
   return (
     <div
-      className="retro-section-band px-6 py-20"
+      className="retro-section-band section-padding"
       data-sync-section="about"
     >
       <div className="mx-auto max-w-6xl">

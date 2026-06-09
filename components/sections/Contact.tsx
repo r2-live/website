@@ -15,7 +15,7 @@ export function ContactSection({ contact }: { contact: ContactInfo }) {
   );
 
   return (
-    <section id={SECTION_IDS.contact} className="section-shell px-6 py-20">
+    <section id={SECTION_IDS.contact} className="section-shell section-padding">
       <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1fr_1.1fr]">
         <div>
           <SectionHeading

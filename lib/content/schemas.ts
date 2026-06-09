@@ -47,14 +47,6 @@ export const eventItemSchema = z.object({
   url: z.string().optional(),
 });
 
-export const venueItemSchema = z.object({
-  slug: z.string().min(1),
-  name: z.string().min(1),
-  image: z.string().optional(),
-  url: z.string().optional(),
-  order: z.number().int().default(0),
-});
-
 export const contactInfoSchema = z.object({
   email: z.string().email(),
   phone: z.string().optional(),

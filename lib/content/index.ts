@@ -9,7 +9,6 @@ import {
   galleryItemSchema,
   legalPageSchema,
   setlistTrackSchema,
-  venueItemSchema,
 } from "./schemas";
 import type {
   BandProfile,
@@ -20,7 +19,6 @@ import type {
   LegalPage,
   SetlistTrack,
   SiteContent,
-  VenueItem,
 } from "@/lib/types";
 import { BRAND_SLUGS } from "@/lib/types";
 
@@ -102,19 +100,6 @@ export function getEvents(): EventItem[] {
     );
 }
 
-export function getVenues(): VenueItem[] {
-  const dir = path.join(contentDir, "shared", "venues");
-  return listMarkdownFiles(dir)
-    .map((filePath) => {
-      const { data } = readMarkdownFile(filePath);
-      return venueItemSchema.parse({
-        ...data,
-        slug: path.basename(filePath, ".md"),
-      });
-    })
-    .sort((a, b) => a.order - b.order);
-}
-
 export function getContact(): ContactInfo {
   const filePath = path.join(contentDir, "shared", "contact.md");
   const { data } = readMarkdownFile(filePath);
@@ -162,7 +147,6 @@ export function getSiteContent(): SiteContent {
     setlists,
     coverArtists: getCoverArtists(),
     events: getEvents(),
-    venues: getVenues(),
     contact: getContact(),
     legal: {
       impressum: getLegal("impressum"),
