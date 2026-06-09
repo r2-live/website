@@ -13,7 +13,10 @@ export function MembersSection({
     <div className="retro-section-band px-6 py-20">
       <div className="mx-auto max-w-6xl">
         <SectionHeading eyebrow={profile.shortName} title="Die Band" />
-        <div className="members-grid">
+        <div
+          className={`members-grid members-grid--${band}`}
+          data-sync-section="members"
+        >
           {profile.members.map((member) => (
             <article
               key={member.name}

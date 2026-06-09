@@ -7,6 +7,7 @@ import {
   BAND_TRANSITION_EASE,
   BAND_TRANSITION_MS,
 } from "@/lib/brand-transition";
+import { BandSectionHeightSync } from "@/components/brand/BandSectionHeightSync";
 import type { BrandSlug } from "@/lib/types";
 
 export function BandPushTransition({
@@ -27,6 +28,7 @@ export function BandPushTransition({
       aria-live="polite"
       data-transitioning={isSweeping || undefined}
     >
+      <BandSectionHeightSync />
       <motion.div
         className="flex w-[200%] will-change-transform [backface-visibility:hidden]"
         initial={false}

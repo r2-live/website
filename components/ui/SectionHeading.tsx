@@ -15,7 +15,7 @@ export function SectionHeading({
       <h2 className="font-display text-4xl uppercase leading-none text-foreground sm:text-5xl">
         {title}
       </h2>
-      <div className="section-heading-rule mx-auto mt-4 h-1 w-16" />
+      <div className="section-heading-rule mx-auto mt-4 w-56 sm:w-72" aria-hidden />
       {description ? (
         <p className="mt-5 text-base leading-7 text-muted">{description}</p>
       ) : null}

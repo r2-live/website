@@ -8,7 +8,10 @@ export function AboutSection({
   profile: BandProfile;
 }) {
   return (
-    <div className="retro-section-band px-6 py-20">
+    <div
+      className="retro-section-band px-6 py-20"
+      data-sync-section="about"
+    >
       <div className="mx-auto max-w-6xl">
         <SectionHeading
           eyebrow={profile.shortName}

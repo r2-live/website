@@ -143,7 +143,12 @@ function GalleryThumbnailStrip({
   const trackRef = useRef<HTMLDivElement>(null);
   const thumbRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const scrollBoundsRef = useRef({ minX: 0, maxX: 0 });
-  const dragStateRef = useRef({ startX: 0, startTrackX: 0, didDrag: false });
+  const dragStateRef = useRef({
+    startX: 0,
+    startTrackX: 0,
+    didDrag: false,
+    pointerId: -1,
+  });
   const [trackX, setTrackX] = useState(0);
   const [isManualScroll, setIsManualScroll] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -206,18 +211,22 @@ function GalleryThumbnailStrip({
       startX: event.clientX,
       startTrackX: trackX,
       didDrag: false,
+      pointerId: event.pointerId,
     };
-    setIsDragging(true);
-    event.currentTarget.setPointerCapture(event.pointerId);
   };
 
   const handleStripPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
+    if (event.pointerId !== dragStateRef.current.pointerId) return;
 
     const delta = event.clientX - dragStateRef.current.startX;
     if (Math.abs(delta) < 4) return;
 
-    dragStateRef.current.didDrag = true;
+    if (!dragStateRef.current.didDrag) {
+      dragStateRef.current.didDrag = true;
+      setIsDragging(true);
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
+
     event.preventDefault();
     setIsManualScroll(true);
     setTrackX(
@@ -230,9 +239,14 @@ function GalleryThumbnailStrip({
   };
 
   const handleStripPointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
-    event.currentTarget.releasePointerCapture(event.pointerId);
+    if (event.pointerId !== dragStateRef.current.pointerId) return;
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+
     setIsDragging(false);
+    dragStateRef.current.pointerId = -1;
 
     if (dragStateRef.current.didDrag) {
       window.setTimeout(() => {
@@ -250,7 +264,7 @@ function GalleryThumbnailStrip({
     >
       <motion.div
         ref={trackRef}
-        className={`flex w-max touch-pan-y gap-3 ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+        className={`flex w-max gap-3 ${isDragging ? "cursor-grabbing" : ""}`}
         animate={{ x: trackX }}
         transition={
           isDragging || reducedMotion ? { duration: 0 } : SLIDE_TRANSITION
@@ -265,6 +279,7 @@ function GalleryThumbnailStrip({
           return (
             <button
               key={item.slug}
+              data-gallery-thumb=""
               ref={(element) => {
                 thumbRefs.current[itemIndex] = element;
               }}
@@ -395,7 +410,7 @@ export function GallerySection({
 
   const handleImageClick = (event: React.MouseEvent<HTMLDivElement>) => {
     if (itemCount <= 1) return;
-    if (window.matchMedia("(min-width: 768px)").matches) return;
+    if (window.matchMedia("(min-width: 640px)").matches) return;
     if (suppressImageClickRef.current) {
       suppressImageClickRef.current = false;
       return;
@@ -431,7 +446,7 @@ export function GallerySection({
                 }
               >
                 <div
-                  className="relative aspect-[16/10] w-full overflow-hidden md:[@media(pointer:fine)]:cursor-default"
+                  className="relative aspect-[16/10] w-full overflow-hidden [@media(pointer:fine)]:cursor-pointer sm:[@media(pointer:fine)]:cursor-default"
                   onClick={handleImageClick}
                   role="presentation"
                 >
@@ -453,7 +468,7 @@ export function GallerySection({
                       <button
                         type="button"
                         aria-label="Vorheriges Bild"
-                        className="group absolute inset-y-0 left-0 z-[5] hidden w-1/2 md:flex md:items-center md:justify-start md:pl-3"
+                        className="group absolute inset-y-0 left-0 z-[5] hidden w-1/2 sm:flex sm:items-center sm:justify-start sm:pl-3"
                         onClick={(event) => {
                           event.stopPropagation();
                           goPrev();
@@ -466,7 +481,7 @@ export function GallerySection({
                       <button
                         type="button"
                         aria-label="Nächstes Bild"
-                        className="group absolute inset-y-0 right-0 z-[5] hidden w-1/2 md:flex md:items-center md:justify-end md:pr-3"
+                        className="group absolute inset-y-0 right-0 z-[5] hidden w-1/2 sm:flex sm:items-center sm:justify-end sm:pr-3"
                         onClick={(event) => {
                           event.stopPropagation();
                           goNext();

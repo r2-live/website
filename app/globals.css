@@ -243,17 +243,18 @@ summary,
 }
 
 .section-heading-rule {
+  height: 2px;
   background: linear-gradient(
-    to right,
+    90deg,
     transparent,
-    var(--accent-gold),
+    var(--border-strong),
     transparent
   );
 }
 
 .band-zone-chrome .section-heading-rule {
   background: linear-gradient(
-    to right,
+    90deg,
     transparent,
     var(--brand-accent),
     transparent
@@ -296,36 +297,105 @@ summary,
 }
 
 .members-grid {
-  display: flex;
-  flex-wrap: wrap;
+  --members-grid-gap: clamp(0.75rem, 2vw, 1.5rem);
+  --member-card-width-katg: clamp(8.5rem, 42vw, 12rem);
+  --member-card-width-r2: clamp(9.775rem, 48.3vw, 13.8rem);
+  --member-card-width-r2-effective: var(--member-card-width-r2);
+  display: grid;
+  gap: var(--members-grid-gap);
   justify-content: center;
-  gap: clamp(0.75rem, 2vw, 1.5rem);
+  align-content: start;
+  margin-inline: auto;
+  width: fit-content;
 }
 
-.members-grid > * {
-  flex: 0 1 clamp(9.5rem, 21vw, 15rem);
-  min-width: clamp(8.75rem, 18vw, 11.5rem);
-  max-width: clamp(9.5rem, 21vw, 15rem);
-  width: 100%;
+.members-grid--katg > * {
+  width: var(--member-card-width-katg);
+  max-width: 100%;
 }
 
+.members-grid--r2-live > * {
+  width: var(--member-card-width-r2-effective);
+  max-width: var(--member-card-width-r2-effective);
+}
+
+/* Narrow: KATG 2×2, R2 2 rows × 1 (matched row count) */
+.members-grid--katg {
+  grid-template-columns: repeat(2, var(--member-card-width-katg));
+  grid-template-rows: repeat(2, auto);
+}
+
+.members-grid--r2-live {
+  grid-template-columns: var(--member-card-width-r2);
+  grid-template-rows: repeat(2, auto);
+  justify-items: center;
+}
+
+/* Tablet: KATG shrinks in one row; R2 scales at ~1.15× measured KATG width */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .members-grid {
+    --member-card-width-katg: clamp(8.75rem, 21vw, 15rem);
+    --member-card-width-r2: clamp(10.0625rem, 24.15vw, 15rem);
+    width: 100%;
+  }
+
+  .members-grid--katg {
+    max-width: calc(
+      4 * var(--member-card-width-katg) + 3 * var(--members-grid-gap)
+    );
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: auto;
+  }
+
+  .members-grid--katg > * {
+    width: 100%;
+    max-width: var(--member-card-width-katg);
+    min-width: 0;
+    justify-self: center;
+  }
+
+  .members-grid--r2-live {
+    max-width: calc(
+      2 * var(--member-card-width-r2-effective) + var(--members-grid-gap)
+    );
+    grid-template-columns: repeat(2, var(--member-card-width-r2-effective));
+    grid-template-rows: auto;
+    justify-items: center;
+  }
+
+  .members-grid--r2-live > * {
+    min-width: auto;
+    justify-self: center;
+  }
+}
+
+/* Desktop: single row; R2 stays ~1.15× KATG */
 @media (min-width: 1025px) {
   .members-grid {
-    flex-wrap: nowrap;
+    --member-card-width-katg: clamp(10rem, 22vw, 15rem);
+    --member-card-width-r2: clamp(11.5rem, 25.3vw, 15rem);
+    width: fit-content;
   }
 
-  .members-grid > * {
-    flex: 0 1 clamp(10rem, 22vw, 15rem);
-    min-width: clamp(9rem, 18vw, 12rem);
-    max-width: clamp(10rem, 22vw, 15rem);
+  .members-grid--katg {
+    grid-template-columns: repeat(4, var(--member-card-width-katg));
+    grid-template-rows: auto;
   }
-}
 
-@media (max-width: 640px) {
-  .members-grid > * {
-    flex: 0 1 clamp(8.5rem, 42vw, 12rem);
-    min-width: clamp(8rem, 38vw, 10.5rem);
-    max-width: clamp(8.5rem, 42vw, 12rem);
+  .members-grid--katg > * {
+    width: var(--member-card-width-katg);
+    min-width: auto;
+    justify-self: auto;
+  }
+
+  .members-grid--r2-live {
+    grid-template-columns: repeat(2, var(--member-card-width-r2-effective));
+    grid-template-rows: auto;
+    justify-items: stretch;
+  }
+
+  .members-grid--r2-live > * {
+    justify-self: auto;
   }
 }
 
@@ -355,6 +425,23 @@ summary,
     );
 }
 
+.shared-zone-intro {
+  background:
+    radial-gradient(
+      ellipse 32% 72% at 50% 58%,
+      rgba(184, 134, 11, 0.22),
+      transparent 72%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(196, 92, 38, 0.38) 0%,
+      rgba(232, 146, 90, 0.22) 44%,
+      rgba(74, 138, 148, 0.22) 56%,
+      rgba(26, 83, 92, 0.38) 100%
+    ),
+    var(--background);
+}
+
 .retro-divider {
   display: flex;
   align-items: center;
@@ -378,6 +465,11 @@ summary,
     var(--border-strong),
     transparent
   );
+}
+
+.retro-divider--lead {
+  border-bottom: 4px double var(--border-strong);
+  margin-bottom: 0.5rem;
 }
 
 .prose-legal h2 {

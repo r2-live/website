@@ -12,6 +12,7 @@ import { ContactSection } from "@/components/sections/Contact";
 import { EventsSection } from "@/components/sections/Events";
 import { SiteFooter } from "@/components/sections/Footer";
 import { VenuesSection } from "@/components/sections/Venues";
+import { SectionSeparator } from "@/components/ui/SectionSeparator";
 import {
   useKeyboardNavigation,
   useSectionSpy,
@@ -34,11 +35,18 @@ function HomePageContent({ content }: { content: SiteContent }) {
         <BandZone content={content} />
 
         <section ref={sharedZoneRef} id="gemeinsam" className="retro-section-shared">
-          <SharedZoneBridge />
-          <div className="retro-divider py-8">Gemeinsam on stage</div>
+          <div className="shared-zone-intro retro-divider--lead">
+            <div className="retro-divider px-6 py-6 sm:py-8">
+              Gemeinsam on stage
+            </div>
+            <SharedZoneBridge />
+          </div>
           <CoverArtistsSection artists={content.coverArtists} />
+          <SectionSeparator />
           <EventsSection events={content.events} />
+          <SectionSeparator />
           <VenuesSection venues={content.venues} />
+          <SectionSeparator />
           <ContactSection contact={content.contact} />
         </section>
       </main>
