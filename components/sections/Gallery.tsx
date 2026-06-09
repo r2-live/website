@@ -14,6 +14,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 
 const SWIPE_THRESHOLD = 48;
 const THUMB_GAP_PX = 12;
+const THUMB_EDGE_INSET_PX = 24;
 const SLIDE_TRANSITION = { duration: 0.4, ease: [0.65, 0, 0.35, 1] as const };
 
 const slideVariants = {
@@ -36,6 +37,33 @@ function getSlideDirection(current: number, next: number, count: number) {
   const forward = (next - current + count) % count;
   const backward = (current - next + count) % count;
   return forward <= backward ? 1 : -1;
+}
+
+function getThumbnailTrackX({
+  containerWidth,
+  thumbWidth,
+  itemCount,
+  activeIndex,
+}: {
+  containerWidth: number;
+  thumbWidth: number;
+  itemCount: number;
+  activeIndex: number;
+}) {
+  const totalWidth =
+    itemCount * thumbWidth + Math.max(0, itemCount - 1) * THUMB_GAP_PX;
+
+  if (totalWidth <= containerWidth) {
+    return (containerWidth - totalWidth) / 2;
+  }
+
+  const activeCenter =
+    activeIndex * (thumbWidth + THUMB_GAP_PX) + thumbWidth / 2;
+  const idealX = containerWidth / 2 - activeCenter;
+  const minX = containerWidth - totalWidth - THUMB_EDGE_INSET_PX;
+  const maxX = THUMB_EDGE_INSET_PX;
+
+  return Math.max(minX, Math.min(maxX, idealX));
 }
 
 function GalleryImage({
@@ -95,20 +123,20 @@ function GalleryThumbnailStrip({
   const thumbRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const [trackX, setTrackX] = useState(0);
 
-  const [edgeInset, setEdgeInset] = useState(0);
-
   const updateTrackPosition = useCallback(() => {
     const container = containerRef.current;
     const thumb = thumbRefs.current[0];
     if (!container || !thumb) return;
 
-    const containerWidth = container.clientWidth;
-    const thumbWidth = thumb.offsetWidth;
-    const inset = containerWidth / 2 - thumbWidth / 2;
-
-    setEdgeInset(inset);
-    setTrackX(-index * (thumbWidth + THUMB_GAP_PX));
-  }, [index]);
+    setTrackX(
+      getThumbnailTrackX({
+        containerWidth: container.clientWidth,
+        thumbWidth: thumb.offsetWidth,
+        itemCount: items.length,
+        activeIndex: index,
+      }),
+    );
+  }, [index, items.length]);
 
   useLayoutEffect(() => {
     updateTrackPosition();
@@ -133,7 +161,6 @@ function GalleryThumbnailStrip({
       <motion.div
         ref={trackRef}
         className="flex w-max gap-3"
-        style={{ paddingLeft: edgeInset, paddingRight: edgeInset }}
         animate={{ x: trackX }}
         transition={reducedMotion ? { duration: 0 } : SLIDE_TRANSITION}
       >
