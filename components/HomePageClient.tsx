@@ -16,7 +16,7 @@ import {
   useKeyboardNavigation,
   useSectionSpy,
 } from "@/hooks/useSectionSpy";
-import type { SiteContent } from "@/lib/types";
+import type { BrandSlug, SiteContent } from "@/lib/types";
 
 function HomePageContent({ content }: { content: SiteContent }) {
   const sharedZoneRef = useRef<HTMLElement>(null);
@@ -54,9 +54,15 @@ function HomePageContent({ content }: { content: SiteContent }) {
   );
 }
 
-export function HomePageClient({ content }: { content: SiteContent }) {
+export function HomePageClient({
+  content,
+  initialBrand,
+}: {
+  content: SiteContent;
+  initialBrand: BrandSlug;
+}) {
   return (
-    <BrandProvider>
+    <BrandProvider initialBrand={initialBrand}>
       <HomePageContent content={content} />
     </BrandProvider>
   );

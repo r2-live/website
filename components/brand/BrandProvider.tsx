@@ -30,33 +30,40 @@ interface BrandContextValue {
 
 const BrandContext = createContext<BrandContextValue | null>(null);
 
-function parseBrandFromSearch(search: string): BrandSlug | null {
-  const value = new URLSearchParams(search).get("band");
+function readBrandFromLocation(): BrandSlug | null {
+  if (typeof window === "undefined") return null;
+  const value = new URLSearchParams(window.location.search).get("band");
   if (value === "r2-live" || value === "katg") return value;
   return null;
 }
 
-export function BrandProvider({ children }: { children: ReactNode }) {
+function resolveInitialBrand(initialBrand: BrandSlug) {
+  return readBrandFromLocation() ?? initialBrand;
+}
+
+export function BrandProvider({
+  children,
+  initialBrand = "r2-live",
+}: {
+  children: ReactNode;
+  initialBrand?: BrandSlug;
+}) {
   const router = useRouter();
-  const [activeBrand, setActiveBrandState] = useState<BrandSlug>("r2-live");
+  const [activeBrand, setActiveBrandState] = useState<BrandSlug>(() =>
+    resolveInitialBrand(initialBrand),
+  );
   const [isSweeping, setIsSweeping] = useState(false);
   const [transitionDirection, setTransitionDirection] =
-    useState<BrandTransitionDirection>("right");
+    useState<BrandTransitionDirection>(() =>
+      getTransitionDirection(resolveInitialBrand(initialBrand)),
+    );
   const [navVisible, setNavVisible] = useState(true);
-  const previousBrandRef = useRef<BrandSlug | null>(null);
-  const activeBrandRef = useRef<BrandSlug>("r2-live");
+  const previousBrandRef = useRef<BrandSlug>(
+    resolveInitialBrand(initialBrand),
+  );
+  const activeBrandRef = useRef<BrandSlug>(resolveInitialBrand(initialBrand));
 
   useEffect(() => {
-    const initial =
-      parseBrandFromSearch(window.location.search) ?? "r2-live";
-    activeBrandRef.current = initial;
-    setActiveBrandState(initial);
-    setTransitionDirection(getTransitionDirection(initial));
-    previousBrandRef.current = initial;
-  }, []);
-
-  useEffect(() => {
-    if (previousBrandRef.current === null) return;
     if (previousBrandRef.current === activeBrand) return;
 
     previousBrandRef.current = activeBrand;

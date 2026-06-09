@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { HomePageClient } from "@/components/HomePageClient";
 import { getSiteContent } from "@/lib/content";
+import type { BrandSlug } from "@/lib/types";
+
+function brandFromSearchParam(value: string | undefined): BrandSlug {
+  return value === "katg" ? "katg" : "r2-live";
+}
 
 export async function generateMetadata({
   searchParams,
@@ -20,8 +25,14 @@ export async function generateMetadata({
   };
 }
 
-export default function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ band?: string }>;
+}) {
+  const params = await searchParams;
   const content = getSiteContent();
+  const initialBrand = brandFromSearchParam(params.band);
 
-  return <HomePageClient content={content} />;
+  return <HomePageClient content={content} initialBrand={initialBrand} />;
 }

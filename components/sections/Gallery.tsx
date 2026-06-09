@@ -165,21 +165,6 @@ function applyStripLayout(
   }
 }
 
-function clearStripLayoutStyles(
-  outer: HTMLDivElement,
-  container: HTMLDivElement,
-  track: HTMLDivElement,
-) {
-  outer.style.width = "";
-  outer.style.marginLeft = "";
-  container.style.paddingLeft = "";
-  container.style.paddingRight = "";
-  track.style.paddingLeft = "";
-  track.style.paddingRight = "";
-  track.style.marginLeft = "";
-  track.style.marginRight = "";
-}
-
 function hasCachedStripLayout(layout: StripLayout) {
   return layout.width > 0;
 }
@@ -194,6 +179,59 @@ function applyCachedStripLayout(
   if (layout.centerTrack) {
     container.scrollLeft = 0;
   }
+}
+
+function getProjectedAlignmentEdges(alignment: HTMLElement) {
+  const pane = alignment.closest<HTMLElement>("[data-brand]");
+  const alignmentRect = alignment.getBoundingClientRect();
+  if (!pane) {
+    return { left: alignmentRect.left, right: alignmentRect.right };
+  }
+
+  const paneRect = pane.getBoundingClientRect();
+  const left = alignmentRect.left - paneRect.left;
+  return {
+    left: Math.round(left),
+    right: Math.round(left + alignmentRect.width),
+  };
+}
+
+function prepareStripLayoutCache(
+  outer: HTMLDivElement,
+  container: HTMLDivElement,
+  track: HTMLDivElement,
+  alignment: HTMLElement,
+): StripLayout | null {
+  const thumb = track.querySelector("button");
+  if (!thumb) return null;
+
+  const viewportWidth = document.documentElement.clientWidth;
+  const sectionPadding = readSectionPaddingX();
+  const isMobile = window.matchMedia(MOBILE_GALLERY_MQ).matches;
+  const projected = getProjectedAlignmentEdges(alignment);
+
+  const baseLayout: StripLayout = isMobile
+    ? {
+        width: viewportWidth,
+        marginLeft: 0,
+        paddingLeft: Math.round(Math.max(0, projected.left)),
+        paddingRight: Math.round(
+          Math.max(0, viewportWidth - projected.right),
+        ),
+        centerTrack: false,
+      }
+    : {
+        width: viewportWidth,
+        marginLeft: 0,
+        paddingLeft: sectionPadding,
+        paddingRight: sectionPadding,
+        centerTrack: false,
+      };
+
+  outer.style.width = `${baseLayout.width}px`;
+  outer.style.marginLeft = "0";
+
+  return finalizeStripLayout(container, track, baseLayout);
 }
 
 function scrollStripTo(
@@ -385,6 +423,29 @@ function GalleryThumbnailStrip({
     }
   }, [alignmentRef, isBandActive]);
 
+  const prepareInactiveStripLayout = useCallback(() => {
+    const outer = outerRef.current;
+    const container = containerRef.current;
+    const track = trackRef.current;
+    const alignment = alignmentRef.current;
+    if (!outer || !container || !track || !alignment) return;
+
+    const nextStripLayout = prepareStripLayoutCache(
+      outer,
+      container,
+      track,
+      alignment,
+    );
+    if (!nextStripLayout) return;
+
+    stripLayoutRef.current = nextStripLayout;
+    applyStripLayout(outer, container, track, nextStripLayout);
+
+    if (nextStripLayout.centerTrack) {
+      container.scrollLeft = 0;
+    }
+  }, [alignmentRef]);
+
   useLayoutEffect(() => {
     const outer = outerRef.current;
     const container = containerRef.current;
@@ -393,7 +454,7 @@ function GalleryThumbnailStrip({
 
     if (!isBandActive) {
       if (!isBandSweeping) {
-        clearStripLayoutStyles(outer, container, track);
+        prepareInactiveStripLayout();
       }
       return;
     }
@@ -417,6 +478,7 @@ function GalleryThumbnailStrip({
     isBandActive,
     isBandSweeping,
     updateStripLayout,
+    prepareInactiveStripLayout,
     items.length,
   ]);
 
@@ -432,21 +494,67 @@ function GalleryThumbnailStrip({
   }, [index, centerActiveThumb, reducedMotion, isBandActive, isBandSweeping]);
 
   useEffect(() => {
+    if (isBandSweeping) return;
+
+    let innerFrame = 0;
+    const outerFrame = requestAnimationFrame(() => {
+      innerFrame = requestAnimationFrame(() => {
+        if (isBandActive) {
+          updateStripLayout();
+        } else {
+          prepareInactiveStripLayout();
+        }
+      });
+    });
+
+    document.fonts?.ready
+      .then(() => {
+        if (isBandActive) {
+          updateStripLayout();
+        } else {
+          prepareInactiveStripLayout();
+        }
+      })
+      .catch(() => undefined);
+
+    return () => {
+      cancelAnimationFrame(outerFrame);
+      cancelAnimationFrame(innerFrame);
+    };
+  }, [
+    isBandActive,
+    isBandSweeping,
+    updateStripLayout,
+    prepareInactiveStripLayout,
+    items.length,
+  ]);
+
+  useEffect(() => {
     const alignment = alignmentRef.current;
-    if (!alignment || !isBandActive || isBandSweeping) return;
+    if (!alignment || isBandSweeping) return;
 
     const mobileQuery = window.matchMedia(MOBILE_GALLERY_MQ);
     const container = containerRef.current;
     const track = trackRef.current;
-    const observer = new ResizeObserver(updateStripLayout);
+    const observer = new ResizeObserver(() => {
+      if (isBandActive) {
+        updateStripLayout();
+      } else {
+        prepareInactiveStripLayout();
+      }
+    });
     observer.observe(alignment);
     if (container) observer.observe(container);
     if (track) observer.observe(track);
 
     const handleLayoutChange = () => {
-      updateStripLayout();
-      if (!isManualScrollRef.current) {
-        centerActiveThumb("auto");
+      if (isBandActive) {
+        updateStripLayout();
+        if (!isManualScrollRef.current) {
+          centerActiveThumb("auto");
+        }
+      } else {
+        prepareInactiveStripLayout();
       }
     };
     window.addEventListener("resize", handleLayoutChange);
@@ -460,6 +568,7 @@ function GalleryThumbnailStrip({
     alignmentRef,
     centerActiveThumb,
     updateStripLayout,
+    prepareInactiveStripLayout,
     isBandActive,
     isBandSweeping,
   ]);
