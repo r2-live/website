@@ -7,18 +7,18 @@ description: >-
   Kurt & The Gang ist die Vierer-Besetzung für größere Bühnen und Festivals.
   Mit Schlagzeug, Bass und erweitertem Sound verwandeln Kurt und die Gang jeden
   Abend in ein mitreißendes Austropop-Erlebnis.
-heroImage: /media/katg/hero.svg
+heroImage: /media/katg/hero.jpg
 members:
   - name: Kurt
     role: Gesang & Gitarre
-    photo: /media/katg/member-kurt.svg
+    photo: /media/katg/member-kurt.jpg
   - name: Alex
     role: Schlagzeug
-    photo: /media/katg/member-alex.svg
+    photo: /media/katg/member-alex.jpg
   - name: Marco
     role: Bass
-    photo: /media/katg/member-marco.svg
+    photo: /media/katg/member-marco.jpg
   - name: Stefan
     role: Keyboard & Gesang
-    photo: /media/katg/member-stefan.svg
+    photo: /media/katg/member-stefan.jpg
 ---

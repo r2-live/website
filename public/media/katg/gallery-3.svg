@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Tanzendes Publikum">
+  <defs>
+    <linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0d2a2e"/>
+      <stop offset="100%" stop-color="#1a535c"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="35%" r="55%">
+      <stop offset="0%" stop-color="#4a8a94" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#1a535c" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#sky)"/>
+  <ellipse cx="400" cy="190" rx="300" ry="130" fill="url(#glow)"/>
+  <rect x="100" y="310" width="600" height="10" rx="4" fill="#2a1f14" opacity="0.45"/>
+  <circle cx="160" cy="355" r="30" fill="#f2e8d5"/>
+  <circle cx="250" cy="368" r="26" fill="#fff9ee"/>
+  <circle cx="350" cy="350" r="32" fill="#f2e8d5"/>
+  <circle cx="450" cy="362" r="28" fill="#fff9ee"/>
+  <circle cx="550" cy="352" r="30" fill="#f2e8d5"/>
+  <circle cx="640" cy="365" r="24" fill="#fff9ee"/>
+  <path d="M320 280 Q400 240 480 280" stroke="#4a8a94" stroke-width="4" fill="none" opacity="0.6"/>
+</svg>

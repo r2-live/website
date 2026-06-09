@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Publikum im Gastgarten">
+  <defs>
+    <linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#3d2314"/>
+      <stop offset="100%" stop-color="#c45c26"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#e8925a" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#c45c26" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#sky)"/>
+  <ellipse cx="400" cy="180" rx="280" ry="120" fill="url(#glow)"/>
+  <rect x="120" y="320" width="560" height="8" rx="4" fill="#2a1f14" opacity="0.5"/>
+  <circle cx="180" cy="360" r="28" fill="#f2e8d5"/>
+  <circle cx="260" cy="370" r="24" fill="#fff9ee"/>
+  <circle cx="340" cy="355" r="30" fill="#f2e8d5"/>
+  <circle cx="420" cy="368" r="26" fill="#fff9ee"/>
+  <circle cx="500" cy="358" r="28" fill="#f2e8d5"/>
+  <circle cx="580" cy="372" r="22" fill="#fff9ee"/>
+  <circle cx="660" cy="362" r="26" fill="#f2e8d5"/>
+  <rect x="300" y="250" width="200" height="60" rx="6" fill="#2a1f14" opacity="0.35"/>
+</svg>

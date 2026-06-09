@@ -1,5 +1,5 @@
 ---
-image: /media/katg/gallery-1.svg
+image: /media/katg/gallery-1.jpg
 caption: Volle Bühne beim Stadtfest
 order: 1
 ---

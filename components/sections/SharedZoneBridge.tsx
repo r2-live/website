@@ -1,21 +1,7 @@
-"use client";
-
-import { motion, useInView, useReducedMotion } from "framer-motion";
-import { useRef } from "react";
-
 export function SharedZoneBridge() {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-8% 0px -20% 0px" });
-  const prefersReducedMotion = useReducedMotion();
-
   return (
-    <div ref={ref} className="shared-zone-bridge px-6 pb-12 pt-14 sm:pt-16">
-      <motion.div
-        initial={prefersReducedMotion ? false : { opacity: 0, y: 28 }}
-        animate={inView ? { opacity: 1, y: 0 } : undefined}
-        transition={{ duration: 0.65, ease: [0.65, 0, 0.35, 1] }}
-        className="mx-auto flex max-w-3xl flex-col items-center text-center"
-      >
+    <div className="shared-zone-bridge px-6 pb-12 pt-14 sm:pt-16">
+      <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
         <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6">
           <img
             src="/media/r2-live/logo.svg"
@@ -46,7 +32,7 @@ export function SharedZoneBridge() {
           Austropop-Klassiker, dieselbe Leidenschaft. Hier geht es um das, was
           beide verbindet.
         </p>
-      </motion.div>
+      </div>
     </div>
   );
 }

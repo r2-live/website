@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Gemütlicher Abend danach">
+  <rect width="800" height="500" fill="#f2e8d5"/>
+  <rect x="0" y="0" width="800" height="200" fill="#c45c26" opacity="0.25"/>
+  <rect x="100" y="280" width="600" height="140" rx="12" fill="#fff9ee" stroke="#c4a574" stroke-width="3"/>
+  <circle cx="200" cy="350" r="36" fill="#e8925a"/>
+  <circle cx="320" cy="340" r="32" fill="#c45c26"/>
+  <circle cx="440" cy="355" r="34" fill="#e8925a"/>
+  <circle cx="560" cy="345" r="30" fill="#c45c26"/>
+  <rect x="180" y="400" width="440" height="12" rx="6" fill="#c4a574" opacity="0.5"/>
+  <circle cx="400" cy="410" r="18" fill="#8b6914" opacity="0.6"/>
+</svg>

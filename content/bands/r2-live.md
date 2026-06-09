@@ -8,12 +8,12 @@ description: >-
   Locations, private Feiern und intime Club-Auftritte. Klassiker der
   österreichischen Popmusik, neu interpretiert mit Gitarre, Gesang und viel
   Charme.
-heroImage: /media/r2-live/hero.svg
+heroImage: /media/r2-live/hero.jpg
 members:
   - name: Kurt
     role: Gesang & Gitarre
-    photo: /media/r2-live/member-kurt.svg
+    photo: /media/r2-live/member-kurt.jpg
   - name: R2 Partner
     role: Gesang & Keyboard
-    photo: /media/r2-live/member-partner.svg
+    photo: /media/r2-live/member-partner.jpg
 ---

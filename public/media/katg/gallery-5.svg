@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Finale mit Publikum">
+  <defs>
+    <linearGradient id="finale" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#0d2a2e"/>
+      <stop offset="55%" stop-color="#1a535c"/>
+      <stop offset="100%" stop-color="#4a8a94"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#finale)"/>
+  <polygon points="400,70 415,120 465,120 425,150 440,200 400,170 360,200 375,150 335,120 385,120" fill="#b8860b"/>
+  <ellipse cx="400" cy="310" rx="200" ry="45" fill="#fff9ee" opacity="0.12"/>
+  <path d="M200 380 L250 300 L300 380" fill="#f2e8d5" opacity="0.7"/>
+  <path d="M350 385 L400 290 L450 385" fill="#fff9ee" opacity="0.8"/>
+  <path d="M500 380 L550 300 L600 380" fill="#f2e8d5" opacity="0.7"/>
+  <text x="400" y="440" text-anchor="middle" fill="#fff9ee" font-family="Georgia, serif" font-size="26" letter-spacing="5">FINALE</text>
+</svg>

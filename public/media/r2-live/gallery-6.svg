@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Zugabe auf der Bühne">
+  <defs>
+    <linearGradient id="encore" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#2a1f14"/>
+      <stop offset="60%" stop-color="#c45c26"/>
+      <stop offset="100%" stop-color="#e8925a"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#encore)"/>
+  <polygon points="400,80 420,140 480,140 430,175 450,235 400,200 350,235 370,175 320,140 380,140" fill="#b8860b"/>
+  <rect x="180" y="360" width="440" height="16" rx="4" fill="#2a1f14" opacity="0.4"/>
+  <ellipse cx="400" cy="320" rx="180" ry="40" fill="#fff9ee" opacity="0.15"/>
+  <text x="400" y="430" text-anchor="middle" fill="#fff9ee" font-family="Georgia, serif" font-size="28" letter-spacing="6">ENCORE</text>
+</svg>
