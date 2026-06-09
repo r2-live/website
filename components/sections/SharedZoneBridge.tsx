@@ -2,14 +2,11 @@
 
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import { useRef } from "react";
-import { BRAND_META } from "@/lib/brand-meta";
 
 export function SharedZoneBridge() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-8% 0px -20% 0px" });
   const prefersReducedMotion = useReducedMotion();
-  const r2 = BRAND_META["r2-live"];
-  const katg = BRAND_META.katg;
 
   return (
     <div ref={ref} className="shared-zone-bridge px-6 pb-12 pt-14 sm:pt-16">
@@ -20,15 +17,11 @@ export function SharedZoneBridge() {
         className="mx-auto flex max-w-3xl flex-col items-center text-center"
       >
         <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6">
-          <div
-            className={`flex min-w-[9rem] items-center justify-center rounded-md border-2 p-2.5 sm:p-3 ${r2.accentBorder} ${r2.bandBg} ${r2.inactiveShadow}`}
-          >
-            <img
-              src="/media/r2-live/logo.svg"
-              alt="R2-Live"
-              className="h-9 w-auto object-contain sm:h-11"
-            />
-          </div>
+          <img
+            src="/media/r2-live/logo.svg"
+            alt="R2-Live"
+            className="h-9 w-auto object-contain sm:h-11"
+          />
 
           <span
             className="font-display text-2xl leading-none text-accent-gold sm:text-3xl"
@@ -37,13 +30,9 @@ export function SharedZoneBridge() {
             ♪
           </span>
 
-          <div
-            className={`flex min-w-[9rem] items-center justify-center rounded-md border-2 p-2.5 sm:p-3 ${katg.accentBorder} ${katg.bandBg} ${katg.accentText} ${katg.inactiveShadow}`}
-          >
-            <span className="font-display text-base uppercase tracking-wide sm:text-lg">
-              Kurt &amp; The Gang
-            </span>
-          </div>
+          <span className="font-display text-base uppercase tracking-wide text-accent-katg sm:text-lg">
+            Kurt &amp; The Gang
+          </span>
         </div>
 
         <p className="font-display mt-8 text-3xl uppercase leading-none text-foreground sm:text-4xl">
