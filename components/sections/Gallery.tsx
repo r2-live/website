@@ -10,6 +10,7 @@ import {
   useState,
   type RefObject,
 } from "react";
+import { useBrand } from "@/components/brand/BrandProvider";
 import type { BrandSlug, GalleryItem } from "@/lib/types";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
@@ -67,10 +68,17 @@ type StripLayout = {
   marginLeft: number;
   paddingLeft: number;
   paddingRight: number;
+  centerTrack: boolean;
 };
 
+function measureNaturalStripLeft(outer: HTMLDivElement) {
+  outer.style.width = "";
+  outer.style.marginLeft = "";
+  return outer.getBoundingClientRect().left;
+}
+
 function getThumbnailStripLayout(
-  stripRect: DOMRect,
+  naturalStripLeft: number,
   alignmentRect: DOMRect,
 ): StripLayout {
   const viewportWidth = document.documentElement.clientWidth;
@@ -80,29 +88,57 @@ function getThumbnailStripLayout(
   if (isMobile) {
     return {
       width: viewportWidth,
-      marginLeft: Math.round(-stripRect.left),
+      marginLeft: Math.round(-naturalStripLeft),
       paddingLeft: Math.round(Math.max(0, alignmentRect.left)),
       paddingRight: Math.round(
         Math.max(0, viewportWidth - alignmentRect.right),
       ),
+      centerTrack: false,
     };
   }
 
   return {
     width: viewportWidth,
-    marginLeft: Math.round(-stripRect.left),
+    marginLeft: Math.round(-naturalStripLeft),
     paddingLeft: sectionPadding,
     paddingRight: sectionPadding,
+    centerTrack: false,
   };
 }
 
-function stripLayoutChanged(previous: StripLayout, next: StripLayout) {
-  return (
-    Math.round(previous.width) !== Math.round(next.width) ||
-    Math.round(previous.marginLeft) !== Math.round(next.marginLeft) ||
-    Math.round(previous.paddingLeft) !== Math.round(next.paddingLeft) ||
-    Math.round(previous.paddingRight) !== Math.round(next.paddingRight)
-  );
+function measureThumbsContentWidth(track: HTMLDivElement) {
+  const children = track.querySelectorAll<HTMLElement>("button");
+  if (children.length === 0) return 0;
+
+  const gap = parseFloat(getComputedStyle(track).gap) || 0;
+  let width = 0;
+  children.forEach((child, childIndex) => {
+    width += child.offsetWidth;
+    if (childIndex > 0) width += gap;
+  });
+  return Math.round(width);
+}
+
+function stripThumbsFit(container: HTMLDivElement, track: HTMLDivElement) {
+  const thumbsWidth = measureThumbsContentWidth(track);
+  return thumbsWidth > 0 && thumbsWidth <= container.clientWidth;
+}
+
+function finalizeStripLayout(
+  container: HTMLDivElement,
+  track: HTMLDivElement,
+  baseLayout: StripLayout,
+): StripLayout {
+  if (!stripThumbsFit(container, track)) {
+    return baseLayout;
+  }
+
+  return {
+    ...baseLayout,
+    paddingLeft: 0,
+    paddingRight: 0,
+    centerTrack: true,
+  };
 }
 
 function applyStripLayout(
@@ -115,8 +151,49 @@ function applyStripLayout(
   outer.style.marginLeft = `${layout.marginLeft}px`;
   container.style.paddingLeft = "";
   container.style.paddingRight = "";
-  track.style.paddingLeft = `${layout.paddingLeft}px`;
-  track.style.paddingRight = `${layout.paddingRight}px`;
+
+  if (layout.centerTrack) {
+    track.style.paddingLeft = "0";
+    track.style.paddingRight = "0";
+    track.style.marginLeft = "auto";
+    track.style.marginRight = "auto";
+  } else {
+    track.style.paddingLeft = `${layout.paddingLeft}px`;
+    track.style.paddingRight = `${layout.paddingRight}px`;
+    track.style.marginLeft = "";
+    track.style.marginRight = "";
+  }
+}
+
+function clearStripLayoutStyles(
+  outer: HTMLDivElement,
+  container: HTMLDivElement,
+  track: HTMLDivElement,
+) {
+  outer.style.width = "";
+  outer.style.marginLeft = "";
+  container.style.paddingLeft = "";
+  container.style.paddingRight = "";
+  track.style.paddingLeft = "";
+  track.style.paddingRight = "";
+  track.style.marginLeft = "";
+  track.style.marginRight = "";
+}
+
+function hasCachedStripLayout(layout: StripLayout) {
+  return layout.width > 0;
+}
+
+function applyCachedStripLayout(
+  outer: HTMLDivElement,
+  container: HTMLDivElement,
+  track: HTMLDivElement,
+  layout: StripLayout,
+) {
+  applyStripLayout(outer, container, track, layout);
+  if (layout.centerTrack) {
+    container.scrollLeft = 0;
+  }
 }
 
 function scrollStripTo(
@@ -212,6 +289,8 @@ function GalleryThumbnailStrip({
   accentTextClass,
   reducedMotion,
   alignmentRef,
+  isBandActive,
+  isBandSweeping,
 }: {
   items: GalleryItem[];
   index: number;
@@ -219,6 +298,8 @@ function GalleryThumbnailStrip({
   accentTextClass: string;
   reducedMotion: boolean;
   alignmentRef: RefObject<HTMLDivElement | null>;
+  isBandActive: boolean;
+  isBandSweeping: boolean;
 }) {
   const outerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -232,6 +313,7 @@ function GalleryThumbnailStrip({
     marginLeft: 0,
     paddingLeft: 0,
     paddingRight: 0,
+    centerTrack: false,
   });
   const [isManualScroll, setIsManualScroll] = useState(false);
 
@@ -242,6 +324,20 @@ function GalleryThumbnailStrip({
       const container = containerRef.current;
       const thumb = thumbRefs.current[index];
       if (!container || !thumb) return;
+
+      if (stripLayoutRef.current.centerTrack) {
+        container.scrollLeft = 0;
+        return;
+      }
+
+      const maxScrollLeft = Math.max(
+        0,
+        container.scrollWidth - container.clientWidth,
+      );
+      if (maxScrollLeft < 1) {
+        container.scrollLeft = 0;
+        return;
+      }
 
       const containerRect = container.getBoundingClientRect();
       const thumbRect = thumb.getBoundingClientRect();
@@ -264,6 +360,8 @@ function GalleryThumbnailStrip({
   );
 
   const updateStripLayout = useCallback(() => {
+    if (!isBandActive) return;
+
     const outer = outerRef.current;
     const container = containerRef.current;
     const track = trackRef.current;
@@ -271,36 +369,79 @@ function GalleryThumbnailStrip({
     const thumb = thumbRefs.current[0];
     if (!outer || !container || !track || !alignment || !thumb) return;
 
-    const stripRect = outer.getBoundingClientRect();
+    const naturalStripLeft = measureNaturalStripLeft(outer);
     const alignmentRect = alignment.getBoundingClientRect();
-    const nextStripLayout = getThumbnailStripLayout(stripRect, alignmentRect);
+    const baseLayout = getThumbnailStripLayout(naturalStripLeft, alignmentRect);
 
-    if (stripLayoutChanged(stripLayoutRef.current, nextStripLayout)) {
-      stripLayoutRef.current = nextStripLayout;
-      applyStripLayout(outer, container, track, nextStripLayout);
+    outer.style.width = `${baseLayout.width}px`;
+    outer.style.marginLeft = "0";
+
+    const nextStripLayout = finalizeStripLayout(container, track, baseLayout);
+    stripLayoutRef.current = nextStripLayout;
+    applyStripLayout(outer, container, track, nextStripLayout);
+
+    if (nextStripLayout.centerTrack) {
+      container.scrollLeft = 0;
     }
-  }, [alignmentRef]);
+  }, [alignmentRef, isBandActive]);
 
   useLayoutEffect(() => {
+    const outer = outerRef.current;
+    const container = containerRef.current;
+    const track = trackRef.current;
+    if (!outer || !container || !track) return;
+
+    if (!isBandActive) {
+      if (!isBandSweeping) {
+        clearStripLayoutStyles(outer, container, track);
+      }
+      return;
+    }
+
+    if (isBandSweeping) {
+      if (hasCachedStripLayout(stripLayoutRef.current)) {
+        applyCachedStripLayout(
+          outer,
+          container,
+          track,
+          stripLayoutRef.current,
+        );
+      } else {
+        updateStripLayout();
+      }
+      return;
+    }
+
+    updateStripLayout();
+  }, [
+    isBandActive,
+    isBandSweeping,
+    updateStripLayout,
+    items.length,
+  ]);
+
+  useLayoutEffect(() => {
+    if (!isBandActive || isBandSweeping) return;
+
     setIsManualScroll(false);
     isManualScrollRef.current = false;
     centerActiveThumb(
       !hasCenteredRef.current || reducedMotion ? "auto" : "smooth",
     );
     hasCenteredRef.current = true;
-  }, [index, centerActiveThumb, reducedMotion]);
-
-  useLayoutEffect(() => {
-    updateStripLayout();
-  }, [updateStripLayout, items.length]);
+  }, [index, centerActiveThumb, reducedMotion, isBandActive, isBandSweeping]);
 
   useEffect(() => {
     const alignment = alignmentRef.current;
-    if (!alignment) return;
+    if (!alignment || !isBandActive || isBandSweeping) return;
 
     const mobileQuery = window.matchMedia(MOBILE_GALLERY_MQ);
+    const container = containerRef.current;
+    const track = trackRef.current;
     const observer = new ResizeObserver(updateStripLayout);
     observer.observe(alignment);
+    if (container) observer.observe(container);
+    if (track) observer.observe(track);
 
     const handleLayoutChange = () => {
       updateStripLayout();
@@ -315,7 +456,13 @@ function GalleryThumbnailStrip({
       window.removeEventListener("resize", handleLayoutChange);
       mobileQuery.removeEventListener("change", handleLayoutChange);
     };
-  }, [alignmentRef, centerActiveThumb, updateStripLayout]);
+  }, [
+    alignmentRef,
+    centerActiveThumb,
+    updateStripLayout,
+    isBandActive,
+    isBandSweeping,
+  ]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -428,6 +575,8 @@ export function GallerySection({
   const touchStartX = useRef<number | null>(null);
   const suppressImageClickRef = useRef(false);
   const prefersReducedMotion = useReducedMotion();
+  const { activeBrand, isSweeping } = useBrand();
+  const isBandActive = activeBrand === band;
   const accentClass = band === "katg" ? "bg-accent-katg" : "bg-accent-r2";
   const accentTextClass =
     band === "katg" ? "text-accent-katg" : "text-accent-r2";
@@ -599,6 +748,8 @@ export function GallerySection({
               accentTextClass={accentTextClass}
               reducedMotion={!!prefersReducedMotion}
               alignmentRef={galleryCardRef}
+              isBandActive={isBandActive}
+              isBandSweeping={isSweeping}
             />
           </div>
         ) : null}

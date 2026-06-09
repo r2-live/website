@@ -44,10 +44,12 @@ export function BrandProvider({ children }: { children: ReactNode }) {
     useState<BrandTransitionDirection>("right");
   const [navVisible, setNavVisible] = useState(true);
   const previousBrandRef = useRef<BrandSlug | null>(null);
+  const activeBrandRef = useRef<BrandSlug>("r2-live");
 
   useEffect(() => {
     const initial =
       parseBrandFromSearch(window.location.search) ?? "r2-live";
+    activeBrandRef.current = initial;
     setActiveBrandState(initial);
     setTransitionDirection(getTransitionDirection(initial));
     previousBrandRef.current = initial;
@@ -57,10 +59,8 @@ export function BrandProvider({ children }: { children: ReactNode }) {
     if (previousBrandRef.current === null) return;
     if (previousBrandRef.current === activeBrand) return;
 
-    setTransitionDirection(getTransitionDirection(activeBrand));
     previousBrandRef.current = activeBrand;
 
-    setIsSweeping(true);
     const sweepTimer = window.setTimeout(
       () => setIsSweeping(false),
       BAND_TRANSITION_MS,
@@ -76,7 +76,11 @@ export function BrandProvider({ children }: { children: ReactNode }) {
   }, [activeBrand, router]);
 
   const setActiveBrand = useCallback((brand: BrandSlug) => {
-    setActiveBrandState((current) => (current === brand ? current : brand));
+    if (activeBrandRef.current === brand) return;
+    activeBrandRef.current = brand;
+    setTransitionDirection(getTransitionDirection(brand));
+    setIsSweeping(true);
+    setActiveBrandState(brand);
   }, []);
 
   const value = useMemo(
