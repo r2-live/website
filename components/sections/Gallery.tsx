@@ -56,24 +56,58 @@ function readSectionPaddingX() {
   return 24;
 }
 
-function getThumbnailEdgeInsets(
-  outerRect: DOMRect,
-  alignmentRect: DOMRect,
-): { left: number; right: number } {
-  const sectionPadding = readSectionPaddingX();
-  const viewportWidth = document.documentElement.clientWidth;
+type StripLayout = {
+  width: number;
+  marginLeft: number;
+  paddingLeft: number;
+  paddingRight: number;
+};
 
-  if (window.matchMedia(MOBILE_GALLERY_MQ).matches) {
+function getThumbnailStripLayout(
+  stripRect: DOMRect,
+  alignmentRect: DOMRect,
+): StripLayout {
+  const viewportWidth = document.documentElement.clientWidth;
+  const sectionPadding = readSectionPaddingX();
+  const isMobile = window.matchMedia(MOBILE_GALLERY_MQ).matches;
+
+  if (isMobile) {
     return {
-      left: Math.max(0, alignmentRect.left - outerRect.left),
-      right: Math.max(0, outerRect.right - alignmentRect.right),
+      width: viewportWidth,
+      marginLeft: Math.round(-stripRect.left),
+      paddingLeft: Math.round(Math.max(0, alignmentRect.left)),
+      paddingRight: Math.round(
+        Math.max(0, viewportWidth - alignmentRect.right),
+      ),
     };
   }
 
   return {
-    left: Math.max(0, sectionPadding - outerRect.left),
-    right: Math.max(0, outerRect.right - (viewportWidth - sectionPadding)),
+    width: viewportWidth,
+    marginLeft: Math.round(-stripRect.left),
+    paddingLeft: sectionPadding,
+    paddingRight: sectionPadding,
   };
+}
+
+function stripLayoutChanged(previous: StripLayout, next: StripLayout) {
+  return (
+    Math.round(previous.width) !== Math.round(next.width) ||
+    Math.round(previous.marginLeft) !== Math.round(next.marginLeft) ||
+    Math.round(previous.paddingLeft) !== Math.round(next.paddingLeft) ||
+    Math.round(previous.paddingRight) !== Math.round(next.paddingRight)
+  );
+}
+
+function applyStripLayout(
+  outer: HTMLDivElement,
+  container: HTMLDivElement,
+  layout: StripLayout,
+) {
+  outer.style.width = `${layout.width}px`;
+  outer.style.marginLeft = `${layout.marginLeft}px`;
+  container.style.paddingLeft = `${layout.paddingLeft}px`;
+  container.style.paddingRight = `${layout.paddingRight}px`;
 }
 
 function getThumbnailLayout({
@@ -187,7 +221,12 @@ function GalleryThumbnailStrip({
     pointerType: "",
   });
   const [trackX, setTrackX] = useState(0);
-  const [edgeInsets, setEdgeInsets] = useState({ left: 0, right: 0 });
+  const stripLayoutRef = useRef<StripLayout>({
+    width: 0,
+    marginLeft: 0,
+    paddingLeft: 0,
+    paddingRight: 0,
+  });
   const [isManualScroll, setIsManualScroll] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -200,12 +239,19 @@ function GalleryThumbnailStrip({
     const thumb = thumbRefs.current[0];
     if (!outer || !container || !alignment || !thumb) return;
 
-    const outerRect = outer.getBoundingClientRect();
+    const stripRect = outer.getBoundingClientRect();
     const alignmentRect = alignment.getBoundingClientRect();
-    const insets = getThumbnailEdgeInsets(outerRect, alignmentRect);
-    setEdgeInsets(insets);
+    const nextStripLayout = getThumbnailStripLayout(stripRect, alignmentRect);
 
-    const containerWidth = container.clientWidth;
+    if (stripLayoutChanged(stripLayoutRef.current, nextStripLayout)) {
+      stripLayoutRef.current = nextStripLayout;
+      applyStripLayout(outer, container, nextStripLayout);
+    }
+
+    const containerWidth =
+      nextStripLayout.width -
+      nextStripLayout.paddingLeft -
+      nextStripLayout.paddingRight;
     const thumbWidth = thumb.offsetWidth;
 
     const layout = getThumbnailLayout({
@@ -231,15 +277,11 @@ function GalleryThumbnailStrip({
   }, [updateTrackPosition, items.length, isManualScroll]);
 
   useEffect(() => {
-    const outer = outerRef.current;
-    const container = containerRef.current;
     const alignment = alignmentRef.current;
-    if (!outer || !container || !alignment) return;
+    if (!alignment) return;
 
     const mobileQuery = window.matchMedia(MOBILE_GALLERY_MQ);
     const observer = new ResizeObserver(updateTrackPosition);
-    observer.observe(outer);
-    observer.observe(container);
     observer.observe(alignment);
 
     const handleLayoutChange = () => updateTrackPosition();
@@ -328,19 +370,12 @@ function GalleryThumbnailStrip({
   };
 
   return (
-    <div
-      ref={outerRef}
-      className="relative left-1/2 mt-6 w-screen -translate-x-1/2"
-    >
+    <div ref={outerRef} className="relative mt-6 shrink-0">
       <div
         ref={containerRef}
         className={`touch-none overflow-hidden pb-1 select-none ${
           isDragging ? "cursor-grabbing" : "cursor-grab"
         }`}
-        style={{
-          paddingLeft: edgeInsets.left,
-          paddingRight: edgeInsets.right,
-        }}
         role="tablist"
         aria-label="Galerie-Vorschau"
         onPointerDownCapture={handleStripPointerDown}
@@ -350,6 +385,7 @@ function GalleryThumbnailStrip({
       >
         <motion.div
           ref={trackRef}
+          initial={false}
           className="flex w-max gap-3"
           animate={{ x: trackX }}
           transition={
@@ -373,7 +409,7 @@ function GalleryThumbnailStrip({
                   if (dragStateRef.current.didDrag) return;
                   onSelect(itemIndex);
                 }}
-                className={`retro-card relative h-20 w-28 shrink-0 overflow-hidden rounded-md border-2 transition sm:h-24 sm:w-32 ${
+                className={`retro-card relative h-20 w-28 shrink-0 overflow-hidden rounded-md border-2 transition-[border-color,box-shadow,opacity] sm:h-24 sm:w-32 ${
                   isActive
                     ? `border-current ${accentTextClass}`
                     : "border-transparent opacity-70 hover:opacity-100"
