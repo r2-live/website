@@ -28,26 +28,28 @@ function HomePageContent({ content }: { content: SiteContent }) {
   return (
     <>
       <BrandNav />
-      <BandExploreRail />
       <SweepTransition />
-      <main className="w-full max-w-full overflow-x-clip">
-        <BandZone content={content} />
+      <div className="site-canvas relative">
+        <BandExploreRail />
+        <main className="w-full max-w-full overflow-x-clip">
+          <BandZone content={content} />
 
-        <section ref={sharedZoneRef} id="gemeinsam" className="retro-section-shared">
-          <div className="shared-zone-intro retro-divider--lead">
-            <div className="retro-divider section-padding-x py-5 sm:py-6">
-              Gemeinsam on stage
+          <section ref={sharedZoneRef} id="gemeinsam" className="retro-section-shared">
+            <div className="shared-zone-intro retro-divider--lead">
+              <div className="retro-divider section-padding-x py-5 sm:py-6">
+                Gemeinsam on stage
+              </div>
+              <SharedZoneBridge />
             </div>
-            <SharedZoneBridge />
-          </div>
-          <CoverArtistsSection artists={content.coverArtists} />
-          <SectionSeparator />
-          <EventsSection events={content.events} />
-          <SectionSeparator />
-          <ContactSection contact={content.contact} />
-        </section>
-      </main>
-      <SiteFooter />
+            <CoverArtistsSection artists={content.coverArtists} />
+            <SectionSeparator />
+            <EventsSection events={content.events} />
+            <SectionSeparator />
+            <ContactSection contact={content.contact} />
+          </section>
+        </main>
+        <SiteFooter />
+      </div>
     </>
   );
 }

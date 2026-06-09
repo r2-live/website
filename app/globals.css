@@ -325,24 +325,18 @@ summary,
   outline-color: color-mix(in srgb, var(--brand-accent) 30%, transparent);
 }
 
-.explore-rail {
+.explore-rail-tab-host {
   isolation: isolate;
-  z-index: 45;
   overflow: visible;
   height: 100vh;
   height: 100dvh;
-  height: 100lvh;
   min-height: -webkit-fill-available;
 }
 
 .explore-rail-edge {
-  top: calc(env(safe-area-inset-top, 0px) * -1);
-  height: calc(
-    100% + env(safe-area-inset-top, 0px) + env(safe-area-inset-bottom, 0px)
-  );
   width: 6px;
-  transform: translateZ(0);
   box-shadow: 0 0 0 1px rgba(42, 31, 20, 0.12);
+  contain: layout paint;
 }
 
 .explore-rail-edge--katg {
@@ -474,7 +468,6 @@ summary,
 }
 
 .retro-section-shared {
-  border-top: 4px double var(--border-strong);
   background:
     linear-gradient(
       180deg,
@@ -491,6 +484,7 @@ summary,
 }
 
 .shared-zone-intro {
+  border-top: 4px double var(--border-strong);
   background:
     radial-gradient(
       ellipse 32% 72% at 50% 58%,

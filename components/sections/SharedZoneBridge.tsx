@@ -1,6 +1,6 @@
 export function SharedZoneBridge() {
   return (
-    <div className="shared-zone-bridge section-padding-x pb-0 pt-10 sm:pt-12">
+    <div className="shared-zone-bridge section-padding-x pb-10 pt-10 sm:pt-12">
       <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
         <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6">
           <img
