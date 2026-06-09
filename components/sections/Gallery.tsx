@@ -8,13 +8,13 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  type RefObject,
 } from "react";
 import type { BrandSlug, GalleryItem } from "@/lib/types";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 const SWIPE_THRESHOLD = 48;
 const THUMB_GAP_PX = 12;
-const THUMB_EDGE_INSET_PX = 24;
 const SLIDE_TRANSITION = { duration: 0.4, ease: [0.65, 0, 0.35, 1] as const };
 
 const slideVariants = {
@@ -39,31 +39,50 @@ function getSlideDirection(current: number, next: number, count: number) {
   return forward <= backward ? 1 : -1;
 }
 
-function getThumbnailTrackX({
+function getThumbnailMetrics({
   containerWidth,
   thumbWidth,
   itemCount,
   activeIndex,
+  edgeInsetLeft,
+  edgeInsetRight,
 }: {
   containerWidth: number;
   thumbWidth: number;
   itemCount: number;
   activeIndex: number;
+  edgeInsetLeft: number;
+  edgeInsetRight: number;
 }) {
   const totalWidth =
     itemCount * thumbWidth + Math.max(0, itemCount - 1) * THUMB_GAP_PX;
+  const availableWidth = containerWidth - edgeInsetLeft - edgeInsetRight;
+  const minX = containerWidth - totalWidth - edgeInsetRight;
+  const maxX = edgeInsetLeft;
 
-  if (totalWidth <= containerWidth) {
-    return (containerWidth - totalWidth) / 2;
+  if (totalWidth <= availableWidth) {
+    return {
+      totalWidth,
+      trackX: edgeInsetLeft + (availableWidth - totalWidth) / 2,
+      minX,
+      maxX,
+    };
   }
 
   const activeCenter =
     activeIndex * (thumbWidth + THUMB_GAP_PX) + thumbWidth / 2;
   const idealX = containerWidth / 2 - activeCenter;
-  const minX = containerWidth - totalWidth - THUMB_EDGE_INSET_PX;
-  const maxX = THUMB_EDGE_INSET_PX;
 
-  return Math.max(minX, Math.min(maxX, idealX));
+  return {
+    totalWidth,
+    trackX: Math.max(minX, Math.min(maxX, idealX)),
+    minX,
+    maxX,
+  };
+}
+
+function clampTrackX(value: number, minX: number, maxX: number) {
+  return Math.max(minX, Math.min(maxX, value));
 }
 
 function GalleryImage({
@@ -111,45 +130,116 @@ function GalleryThumbnailStrip({
   onSelect,
   accentTextClass,
   reducedMotion,
+  alignmentRef,
 }: {
   items: GalleryItem[];
   index: number;
   onSelect: (itemIndex: number) => void;
   accentTextClass: string;
   reducedMotion: boolean;
+  alignmentRef: RefObject<HTMLElement | null>;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const thumbRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const scrollBoundsRef = useRef({ minX: 0, maxX: 0 });
+  const dragStateRef = useRef({ startX: 0, startTrackX: 0, didDrag: false });
   const [trackX, setTrackX] = useState(0);
+  const [isManualScroll, setIsManualScroll] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const updateTrackPosition = useCallback(() => {
     const container = containerRef.current;
+    const alignment = alignmentRef.current;
     const thumb = thumbRefs.current[0];
-    if (!container || !thumb) return;
+    if (!container || !alignment || !thumb) return;
 
-    setTrackX(
-      getThumbnailTrackX({
-        containerWidth: container.clientWidth,
-        thumbWidth: thumb.offsetWidth,
-        itemCount: items.length,
-        activeIndex: index,
-      }),
-    );
-  }, [index, items.length]);
+    const containerRect = container.getBoundingClientRect();
+    const alignmentRect = alignment.getBoundingClientRect();
+    const metrics = getThumbnailMetrics({
+      containerWidth: containerRect.width,
+      thumbWidth: thumb.offsetWidth,
+      itemCount: items.length,
+      activeIndex: index,
+      edgeInsetLeft: alignmentRect.left - containerRect.left,
+      edgeInsetRight: containerRect.right - alignmentRect.right,
+    });
+
+    scrollBoundsRef.current = {
+      minX: metrics.minX,
+      maxX: metrics.maxX,
+    };
+
+    if (!isManualScroll) {
+      setTrackX(metrics.trackX);
+    }
+  }, [alignmentRef, index, isManualScroll, items.length]);
+
+  useLayoutEffect(() => {
+    setIsManualScroll(false);
+  }, [index]);
 
   useLayoutEffect(() => {
     updateTrackPosition();
-  }, [updateTrackPosition, items.length]);
+  }, [updateTrackPosition, items.length, isManualScroll]);
 
   useEffect(() => {
     const container = containerRef.current;
+    const alignment = alignmentRef.current;
     if (!container) return;
 
     const observer = new ResizeObserver(updateTrackPosition);
     observer.observe(container);
-    return () => observer.disconnect();
-  }, [updateTrackPosition]);
+    if (alignment) observer.observe(alignment);
+
+    window.addEventListener("resize", updateTrackPosition);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateTrackPosition);
+    };
+  }, [alignmentRef, updateTrackPosition]);
+
+  const handleStripPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.button !== 0) return;
+
+    dragStateRef.current = {
+      startX: event.clientX,
+      startTrackX: trackX,
+      didDrag: false,
+    };
+    setIsDragging(true);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const handleStripPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
+
+    const delta = event.clientX - dragStateRef.current.startX;
+    if (Math.abs(delta) < 4) return;
+
+    dragStateRef.current.didDrag = true;
+    event.preventDefault();
+    setIsManualScroll(true);
+    setTrackX(
+      clampTrackX(
+        dragStateRef.current.startTrackX + delta,
+        scrollBoundsRef.current.minX,
+        scrollBoundsRef.current.maxX,
+      ),
+    );
+  };
+
+  const handleStripPointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
+    event.currentTarget.releasePointerCapture(event.pointerId);
+    setIsDragging(false);
+
+    if (dragStateRef.current.didDrag) {
+      window.setTimeout(() => {
+        dragStateRef.current.didDrag = false;
+      }, 0);
+    }
+  };
 
   return (
     <div
@@ -160,9 +250,15 @@ function GalleryThumbnailStrip({
     >
       <motion.div
         ref={trackRef}
-        className="flex w-max gap-3"
+        className={`flex w-max touch-pan-y gap-3 ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
         animate={{ x: trackX }}
-        transition={reducedMotion ? { duration: 0 } : SLIDE_TRANSITION}
+        transition={
+          isDragging || reducedMotion ? { duration: 0 } : SLIDE_TRANSITION
+        }
+        onPointerDown={handleStripPointerDown}
+        onPointerMove={handleStripPointerMove}
+        onPointerUp={handleStripPointerUp}
+        onPointerCancel={handleStripPointerUp}
       >
         {items.map((item, itemIndex) => {
           const isActive = itemIndex === index;
@@ -176,7 +272,10 @@ function GalleryThumbnailStrip({
               role="tab"
               aria-selected={isActive}
               aria-label={item.caption || `Bild ${itemIndex + 1}`}
-              onClick={() => onSelect(itemIndex)}
+              onClick={() => {
+                if (dragStateRef.current.didDrag) return;
+                onSelect(itemIndex);
+              }}
               className={`retro-card relative h-20 w-28 shrink-0 overflow-hidden rounded-md border-2 transition sm:h-24 sm:w-32 ${
                 isActive
                   ? `border-current ${accentTextClass}`
@@ -246,8 +345,9 @@ export function GallerySection({
 }) {
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(1);
-  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const carouselRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
+  const suppressImageClickRef = useRef(false);
   const prefersReducedMotion = useReducedMotion();
   const accentClass = band === "katg" ? "bg-accent-katg" : "bg-accent-r2";
   const accentTextClass =
@@ -288,22 +388,25 @@ export function GallerySection({
     const delta = clientX - touchStartX.current;
     touchStartX.current = null;
     if (Math.abs(delta) < SWIPE_THRESHOLD) return;
+    suppressImageClickRef.current = true;
     if (delta < 0) goNext();
     else goPrev();
   };
 
-  useEffect(() => {
-    if (!lightboxOpen) return;
+  const handleImageClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (itemCount <= 1) return;
+    if (window.matchMedia("(min-width: 768px)").matches) return;
+    if (suppressImageClickRef.current) {
+      suppressImageClickRef.current = false;
+      return;
+    }
+    const rect = event.currentTarget.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    if (clickX < rect.width / 2) goPrev();
+    else goNext();
+  };
 
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "ArrowLeft") goPrev();
-      if (event.key === "ArrowRight") goNext();
-      if (event.key === "Escape") setLightboxOpen(false);
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [lightboxOpen, goPrev, goNext]);
+  const navBadgeClass = `retro-btn inline-flex items-center justify-center rounded-full px-3 py-2 text-lg leading-none text-white shadow-md transition duration-200 ease-out group-hover:scale-110 group-hover:shadow-lg group-active:scale-95 ${accentClass}`;
 
   if (itemCount === 0) return null;
 
@@ -314,7 +417,10 @@ export function GallerySection({
           <SectionHeading eyebrow={bandName} title="Galerie" />
 
           <div className="mx-auto max-w-4xl">
-            <div className="retro-card overflow-hidden rounded-md">
+            <div
+              ref={carouselRef}
+              className="retro-card overflow-hidden rounded-md"
+            >
               <div
                 className="relative touch-pan-y"
                 onTouchStart={(event) =>
@@ -324,11 +430,10 @@ export function GallerySection({
                   handleTouchEnd(event.changedTouches[0]?.clientX ?? 0)
                 }
               >
-                <button
-                  type="button"
-                  onClick={() => setLightboxOpen(true)}
-                  className="group relative block aspect-[16/10] w-full cursor-pointer overflow-hidden"
-                  aria-label={`${activeItem.caption || "Galeriebild"} vergrößern`}
+                <div
+                  className="relative aspect-[16/10] w-full overflow-hidden md:[@media(pointer:fine)]:cursor-default"
+                  onClick={handleImageClick}
+                  role="presentation"
                 >
                   <AnimatePresence initial={false} custom={direction} mode="sync">
                     <GalleryCarouselSlide
@@ -336,37 +441,47 @@ export function GallerySection({
                       item={activeItem}
                       bandName={bandName}
                       direction={direction}
-                      imageClassName="retro-photo object-cover transition duration-500 group-hover:scale-[1.02]"
+                      imageClassName="retro-photo object-cover"
                       sizes="(max-width: 768px) 100vw, 56rem"
                       priority={index === 0}
                       reducedMotion={!!prefersReducedMotion}
                     />
                   </AnimatePresence>
-                </button>
 
-                {itemCount > 1 ? (
-                  <>
-                    <button
-                      type="button"
-                      onClick={goPrev}
-                      className={`retro-btn absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full ${accentClass} px-3 py-2 text-lg leading-none text-white shadow-md`}
-                      aria-label="Vorheriges Bild"
-                    >
-                      ‹
-                    </button>
-                    <button
-                      type="button"
-                      onClick={goNext}
-                      className={`retro-btn absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full ${accentClass} px-3 py-2 text-lg leading-none text-white shadow-md`}
-                      aria-label="Nächstes Bild"
-                    >
-                      ›
-                    </button>
-                  </>
-                ) : null}
+                  {itemCount > 1 ? (
+                    <>
+                      <button
+                        type="button"
+                        aria-label="Vorheriges Bild"
+                        className="group absolute inset-y-0 left-0 z-[5] hidden w-1/2 md:flex md:items-center md:justify-start md:pl-3"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          goPrev();
+                        }}
+                      >
+                        <span className={navBadgeClass} aria-hidden>
+                          ‹
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        aria-label="Nächstes Bild"
+                        className="group absolute inset-y-0 right-0 z-[5] hidden w-1/2 md:flex md:items-center md:justify-end md:pr-3"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          goNext();
+                        }}
+                      >
+                        <span className={navBadgeClass} aria-hidden>
+                          ›
+                        </span>
+                      </button>
+                    </>
+                  ) : null}
+                </div>
               </div>
 
-              <div className="flex items-center justify-between gap-4 px-4 py-3">
+              <div className="px-4 py-3">
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.p
                     key={activeItem.slug}
@@ -378,16 +493,11 @@ export function GallerySection({
                         ? { duration: 0 }
                         : { duration: 0.25, ease: "easeOut" }
                     }
-                    className="min-h-[3rem] flex-1 text-sm text-muted"
+                    className="min-h-[3rem] text-sm text-muted"
                   >
                     {activeItem.caption || "\u00A0"}
                   </motion.p>
                 </AnimatePresence>
-                <p
-                  className={`shrink-0 text-xs font-medium uppercase tracking-wider ${accentTextClass}`}
-                >
-                  {index + 1} / {itemCount}
-                </p>
               </div>
             </div>
 
@@ -401,92 +511,11 @@ export function GallerySection({
             onSelect={goTo}
             accentTextClass={accentTextClass}
             reducedMotion={!!prefersReducedMotion}
+            alignmentRef={carouselRef}
           />
         ) : null}
       </div>
 
-      {lightboxOpen ? (
-        <div
-          className="fixed inset-0 z-[60] flex cursor-pointer items-center justify-center bg-black/80 p-4 sm:p-6"
-          onClick={() => setLightboxOpen(false)}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Galerie-Lightbox"
-        >
-          <div
-            className="retro-card relative max-h-[90vh] w-full max-w-5xl overflow-hidden rounded-md bg-surface-dark"
-            onClick={(event) => event.stopPropagation()}
-            onTouchStart={(event) =>
-              handleTouchStart(event.changedTouches[0]?.clientX ?? 0)
-            }
-            onTouchEnd={(event) =>
-              handleTouchEnd(event.changedTouches[0]?.clientX ?? 0)
-            }
-          >
-            <div className="relative aspect-[16/10] overflow-hidden">
-              <AnimatePresence initial={false} custom={direction} mode="sync">
-                <GalleryCarouselSlide
-                  key={activeItem.slug}
-                  item={activeItem}
-                  bandName={bandName}
-                  direction={direction}
-                  imageClassName="object-contain"
-                  sizes="100vw"
-                  reducedMotion={!!prefersReducedMotion}
-                />
-              </AnimatePresence>
-            </div>
-
-            {activeItem.caption ? (
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.p
-                  key={activeItem.slug}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={
-                    prefersReducedMotion
-                      ? { duration: 0 }
-                      : { duration: 0.2, ease: "easeOut" }
-                  }
-                  className="px-4 pb-4 pt-2 text-center text-sm text-white/80"
-                >
-                  {activeItem.caption}
-                </motion.p>
-              </AnimatePresence>
-            ) : null}
-
-            {itemCount > 1 ? (
-              <>
-                <button
-                  type="button"
-                  className={`retro-btn absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full ${accentClass} px-3 py-2 text-xl leading-none text-white`}
-                  onClick={goPrev}
-                  aria-label="Vorheriges Bild"
-                >
-                  ‹
-                </button>
-                <button
-                  type="button"
-                  className={`retro-btn absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full ${accentClass} px-3 py-2 text-xl leading-none text-white`}
-                  onClick={goNext}
-                  aria-label="Nächstes Bild"
-                >
-                  ›
-                </button>
-              </>
-            ) : null}
-
-            <button
-              type="button"
-              className={`retro-btn absolute right-4 top-4 z-10 cursor-pointer rounded-md ${accentClass} px-3 py-1 text-sm text-white`}
-              onClick={() => setLightboxOpen(false)}
-            >
-              Schließen
-            </button>
-          </div>
-        </div>
-      ) : null}
     </>
   );
 }
