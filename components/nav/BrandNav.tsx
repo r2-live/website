@@ -20,9 +20,9 @@ export function BrandNav() {
       transition={{ duration: 0.35, ease: "easeOut" }}
       className="fixed top-3 left-1/2 z-50 w-[min(94vw,720px)] -translate-x-1/2"
     >
-      <div className="w-full overflow-hidden rounded-xl border-2 border-border bg-surface p-1.5 shadow-[4px_4px_0_var(--retro-shadow)] sm:p-2">
+      <div className="w-full overflow-hidden rounded-xl border-2 border-border bg-surface p-1.5 shadow-[4px_4px_0_var(--retro-shadow)] sm:tall:p-2">
         <div
-          className="grid w-full grid-cols-[auto_1fr_auto] items-stretch gap-1.5 sm:gap-2"
+          className="grid w-full grid-cols-[auto_1fr_auto] items-stretch gap-1.5 sm:tall:gap-2"
           role="tablist"
           aria-label="Band auswählen"
         >
@@ -38,7 +38,7 @@ export function BrandNav() {
               alt="R2-Live"
               width={140}
               height={56}
-              className={`h-11 w-auto object-contain sm:h-14 ${
+              className={`h-11 w-auto object-contain sm:tall:h-14 ${
               activeBrand === "r2-live" ? "brightness-0 invert" : ""
             }`}
             />
@@ -46,10 +46,10 @@ export function BrandNav() {
           </div>
 
           <div
-            className="flex w-full min-w-0 items-center justify-center rounded-md bg-surface px-2 sm:px-3"
+            className="flex w-full min-w-0 items-center justify-center rounded-md bg-surface px-2 sm:tall:px-3"
             aria-hidden
           >
-            <span className="font-display hidden text-[0.65rem] uppercase tracking-[0.22em] text-accent-gold xs:block xs:text-xs sm:text-sm sm:tracking-[0.28em]">
+            <span className="font-display hidden text-[0.65rem] uppercase tracking-[0.22em] text-accent-gold xs:block xs:text-xs sm:tall:text-sm sm:tall:tracking-[0.28em]">
               ★ Austropop ★
             </span>
             <span className="font-display text-sm text-accent-gold xs:hidden">
@@ -65,7 +65,7 @@ export function BrandNav() {
             label="Kurt & The Gang"
           >
             <div className="text-right leading-tight">
-              <span className="font-display block max-w-[9.5rem] text-sm uppercase tracking-wide sm:max-w-none sm:text-base md:text-lg">
+              <span className="font-display block max-w-[9.5rem] text-sm uppercase tracking-wide sm:tall:max-w-none sm:tall:text-base md:tall:text-lg">
                 Kurt &amp; The Gang
               </span>
             </div>
@@ -100,7 +100,7 @@ function BrandButton({
       aria-label={isActive ? `${label} (aktiv)` : `Zu ${label} wechseln`}
       aria-selected={isActive}
       onClick={() => onSelect(brand)}
-      className={`flex shrink-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-md border-2 p-2.5 transition sm:p-3 ${meta.accentBorder} ${
+      className={`flex shrink-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-md border-2 p-2.5 transition sm:tall:p-3 ${meta.accentBorder} ${
         isActive
           ? `${meta.accentBg} text-white ${meta.accentShadow}`
           : `${meta.bandBg} ${meta.accentText} ${meta.inactiveShadow} hover:-translate-y-px hover:shadow-[3px_3px_0_rgba(42,31,20,0.2)]`

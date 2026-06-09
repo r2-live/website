@@ -68,7 +68,7 @@ export function BandExploreRail() {
               : { opacity: 0, x: isRight ? 28 : -28 }
           }
           transition={{ duration: 0.35, ease: [0.65, 0, 0.35, 1] }}
-          className={`explore-rail pointer-events-none fixed inset-y-0 w-0 ${
+          className={`explore-rail pointer-events-none fixed top-0 w-0 ${
             isRight ? "right-0" : "left-0"
           }`}
         >
@@ -87,16 +87,16 @@ export function BandExploreRail() {
                 ? "Zu Kurt & The Gang wechseln"
                 : "Zu R2-Live wechseln"
             }
-            className={`explore-rail-tab pointer-events-auto absolute bottom-6 top-auto z-10 flex -translate-y-0 flex-col items-center border-2 sm:bottom-8 lg:bottom-auto lg:top-1/2 lg:-translate-y-1/2 ${targetMeta.accentBorder} ${targetMeta.bandBg} ${targetMeta.inactiveShadow} hover:shadow-[3px_3px_0_rgba(42,31,20,0.2)] ${
+            className={`explore-rail-tab pointer-events-auto absolute bottom-6 top-auto z-10 flex -translate-y-0 flex-col items-center border-2 sm:tall:bottom-8 lg:bottom-auto lg:top-1/2 lg:-translate-y-1/2 ${targetMeta.accentBorder} ${targetMeta.bandBg} ${targetMeta.inactiveShadow} hover:shadow-[3px_3px_0_rgba(42,31,20,0.2)] ${
               isRight
-                ? "right-0 origin-right rounded-l-md rounded-r-none border-r-0 py-2.5 pl-1.5 pr-1 sm:py-1 sm:pl-3 sm:pr-2"
-                : "left-0 origin-left rounded-r-md rounded-l-none border-l-0 py-2.5 pr-1.5 pl-1 sm:py-1 sm:pr-3 sm:pl-2"
+                ? "right-0 origin-right rounded-l-md rounded-r-none border-r-0 py-2.5 pl-1.5 pr-1 sm:tall:py-1 sm:tall:pl-3 sm:tall:pr-2"
+                : "left-0 origin-left rounded-r-md rounded-l-none border-l-0 py-2.5 pr-1.5 pl-1 sm:tall:py-1 sm:tall:pr-3 sm:tall:pl-2"
             }`}
             whileHover={prefersReducedMotion ? undefined : { scale: 1.04 }}
             whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
           >
             <span
-              className={`font-display flex h-16 w-7 items-center justify-center sm:hidden ${config.accentMutedClass}`}
+              className={`font-display flex h-16 w-7 items-center justify-center sm:tall:hidden ${config.accentMutedClass}`}
             >
               <span
                 className={`inline-block whitespace-nowrap text-[0.7rem] uppercase tracking-[0.09em] ${
@@ -107,14 +107,14 @@ export function BandExploreRail() {
               </span>
             </span>
             <span
-              className={`font-display mt-1 hidden text-xs uppercase tracking-[0.22em] sm:block sm:text-sm ${config.accentMutedClass}`}
+              className={`font-display mt-1 hidden text-xs uppercase tracking-[0.22em] sm:tall:block sm:tall:text-sm ${config.accentMutedClass}`}
             >
               {config.tagline}
             </span>
 
-            <span className="explore-rail-label my-0.5 hidden h-[12.5rem] w-11 items-center justify-center overflow-visible sm:flex sm:h-[14.5rem] sm:w-12">
+            <span className="explore-rail-label my-0.5 hidden h-[12.5rem] w-11 items-center justify-center overflow-visible sm:tall:flex sm:tall:h-[14.5rem] sm:tall:w-12">
               <span
-                className={`font-display inline-block whitespace-nowrap text-xl uppercase tracking-[0.1em] sm:text-2xl ${config.accentMutedClass} ${
+                className={`font-display inline-block whitespace-nowrap text-xl uppercase tracking-[0.1em] sm:tall:text-2xl ${config.accentMutedClass} ${
                   isRight ? "-rotate-90" : "rotate-90"
                 }`}
               >
@@ -123,7 +123,7 @@ export function BandExploreRail() {
             </span>
 
             <motion.span
-              className={`font-display text-[1.625rem] leading-none sm:mb-1 sm:text-4xl ${config.accentMutedClass}`}
+              className={`font-display text-[1.625rem] leading-none sm:tall:mb-1 sm:tall:text-4xl ${config.accentMutedClass}`}
               animate={
                 prefersReducedMotion
                   ? { opacity: 1 }
@@ -139,7 +139,7 @@ export function BandExploreRail() {
             </motion.span>
 
             <span
-              className={`mt-1.5 h-1 w-6 sm:mb-1 sm:mt-0 sm:w-11 ${config.accentClass}`}
+              className={`mt-1.5 h-1 w-6 sm:tall:mb-1 sm:tall:mt-0 sm:tall:w-11 ${config.accentClass}`}
               aria-hidden
             />
           </motion.button>

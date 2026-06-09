@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant tall (@media (min-height: 31.25rem));
+
 :root {
   --background: #f2e8d5;
   --foreground: #2a1f14;
@@ -202,6 +204,7 @@ summary,
   --brand-border: rgba(196, 92, 38, 0.45);
   --brand-shadow: rgba(196, 92, 38, 0.3);
   position: relative;
+  overflow-x: clip;
 }
 
 .band-zone-chrome[data-brand="katg"] {
@@ -305,11 +308,17 @@ summary,
   isolation: isolate;
   z-index: 45;
   overflow: visible;
+  height: 100vh;
+  height: 100dvh;
+  height: 100lvh;
+  min-height: -webkit-fill-available;
 }
 
 .explore-rail-edge {
-  top: 0;
-  bottom: 0;
+  top: calc(env(safe-area-inset-top, 0px) * -1);
+  height: calc(
+    100% + env(safe-area-inset-top, 0px) + env(safe-area-inset-bottom, 0px)
+  );
   width: 6px;
   transform: translateZ(0);
   box-shadow: 0 0 0 1px rgba(42, 31, 20, 0.12);
