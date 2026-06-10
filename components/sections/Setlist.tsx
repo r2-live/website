@@ -3,7 +3,6 @@
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { BrandSlug, SetlistTrack } from "@/lib/types";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { useScrollChaining } from "@/hooks/useScrollChaining";
 
 function getYoutubeEmbed(url: string) {
   try {
@@ -95,10 +94,7 @@ export function SetlistSection({
   const defaultSlug = useMemo(() => getDefaultTrackSlug(tracks), [tracks]);
   const [selectedSlug, setSelectedSlug] = useState(defaultSlug);
   const previewRef = useRef<HTMLDivElement>(null);
-  const tracksRef = useRef<HTMLUListElement>(null);
   const [listHeight, setListHeight] = useState<number | null>(null);
-
-  useScrollChaining(tracksRef);
 
   const selectedTrack =
     tracks.find((track) => track.slug === selectedSlug) ?? tracks[0] ?? null;
@@ -146,10 +142,7 @@ export function SetlistSection({
             className="setlist-panel retro-card flex min-h-0 min-w-0 flex-col rounded-md max-lg:overflow-visible lg:overflow-hidden"
             style={listHeight ? { height: listHeight } : undefined}
           >
-            <ul
-              ref={tracksRef}
-              className="setlist-panel__tracks min-h-0 flex-1 max-lg:overflow-visible lg:overflow-y-auto lg:overscroll-y-none"
-            >
+            <ul className="setlist-panel__tracks min-h-0 flex-1 max-lg:overflow-visible lg:overflow-y-auto">
               {tracks.map((track, index) => {
                 const isSelected = track.slug === selectedTrack?.slug;
                 const hasPreview = Boolean(getTrackPreview(track));

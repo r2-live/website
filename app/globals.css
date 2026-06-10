@@ -341,7 +341,6 @@ summary,
 }
 
 .setlist-panel__tracks {
-  overscroll-behavior-y: none;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--brand-border, var(--border)) 70%, transparent)
     transparent;
