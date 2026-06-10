@@ -26,6 +26,8 @@ interface BrandContextValue {
   transitionDirection: BrandTransitionDirection;
   navVisible: boolean;
   setNavVisible: (visible: boolean) => void;
+  brandNavVisible: boolean;
+  setBrandNavVisible: (visible: boolean) => void;
 }
 
 const BrandContext = createContext<BrandContextValue | null>(null);
@@ -58,6 +60,7 @@ export function BrandProvider({
       getTransitionDirection(resolveInitialBrand(initialBrand)),
     );
   const [navVisible, setNavVisible] = useState(true);
+  const [brandNavVisible, setBrandNavVisible] = useState(false);
   const previousBrandRef = useRef<BrandSlug>(
     resolveInitialBrand(initialBrand),
   );
@@ -98,12 +101,15 @@ export function BrandProvider({
       transitionDirection,
       navVisible,
       setNavVisible,
+      brandNavVisible,
+      setBrandNavVisible,
     }),
     [
       activeBrand,
       isSweeping,
       transitionDirection,
       navVisible,
+      brandNavVisible,
       setActiveBrand,
     ],
   );

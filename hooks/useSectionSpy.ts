@@ -12,23 +12,56 @@ function scrollToSection(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 }
 
+function isBannerQuarterHidden(brand: BrandSlug) {
+  const hero = document.getElementById(`${brand}-hero`);
+  if (!hero) return window.scrollY > 48;
+
+  const { top, bottom, height } = hero.getBoundingClientRect();
+  if (height <= 0) return false;
+
+  const visibleTop = Math.max(0, top);
+  const visibleBottom = Math.min(window.innerHeight, bottom);
+  const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+
+  return visibleHeight <= (height * 3) / 4;
+}
+
 export function useSectionSpy(sharedZoneRef: React.RefObject<HTMLElement | null>) {
-  const { setNavVisible } = useBrand();
+  const { activeBrand, setNavVisible, setBrandNavVisible } = useBrand();
 
   useEffect(() => {
     const target = sharedZoneRef.current;
     if (!target) return;
 
-    const observer = new IntersectionObserver(
+    let sharedZoneInView = false;
+
+    const updateNav = () => {
+      const bannerQuarterHidden = isBannerQuarterHidden(activeBrand);
+      setNavVisible(!sharedZoneInView);
+      setBrandNavVisible(!sharedZoneInView && bannerQuarterHidden);
+    };
+
+    const sharedObserver = new IntersectionObserver(
       ([entry]) => {
-        setNavVisible(!entry.isIntersecting);
+        sharedZoneInView = entry.isIntersecting;
+        updateNav();
       },
       { rootMargin: "-20% 0px -55% 0px", threshold: 0.01 },
     );
 
-    observer.observe(target);
-    return () => observer.disconnect();
-  }, [setNavVisible, sharedZoneRef]);
+    sharedObserver.observe(target);
+    updateNav();
+
+    const onScrollOrResize = () => updateNav();
+    window.addEventListener("scroll", onScrollOrResize, { passive: true });
+    window.addEventListener("resize", onScrollOrResize, { passive: true });
+
+    return () => {
+      sharedObserver.disconnect();
+      window.removeEventListener("scroll", onScrollOrResize);
+      window.removeEventListener("resize", onScrollOrResize);
+    };
+  }, [activeBrand, setNavVisible, setBrandNavVisible, sharedZoneRef]);
 }
 
 export function useKeyboardNavigation(

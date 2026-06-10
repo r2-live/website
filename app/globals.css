@@ -176,6 +176,82 @@ summary,
   filter: sepia(0.12) contrast(1.05) saturate(0.92);
 }
 
+.hero-blur-fill {
+  overflow: hidden;
+}
+
+.hero-blur-fill__image {
+  transform: scale(1.2);
+  filter: sepia(0.12) contrast(1.05) saturate(0.92) blur(42px);
+}
+
+.hero-clip-viewport--fade-full {
+  -webkit-mask-image:
+    linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(0, 0, 0, 0.06) 1.5%,
+      rgba(0, 0, 0, 0.18) 4%,
+      rgba(0, 0, 0, 0.38) 7%,
+      rgba(0, 0, 0, 0.58) 10%,
+      rgba(0, 0, 0, 0.76) 13%,
+      rgba(0, 0, 0, 0.88) 16%,
+      #000 22%,
+      #000 78%,
+      rgba(0, 0, 0, 0.88) 84%,
+      rgba(0, 0, 0, 0.76) 87%,
+      rgba(0, 0, 0, 0.58) 90%,
+      rgba(0, 0, 0, 0.38) 93%,
+      rgba(0, 0, 0, 0.18) 96%,
+      rgba(0, 0, 0, 0.06) 98.5%,
+      transparent 100%
+    ),
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(0, 0, 0, 0.25) 8%,
+      #000 16%,
+      #000 84%,
+      rgba(0, 0, 0, 0.3) 92%,
+      transparent 100%
+    );
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(0, 0, 0, 0.06) 1.5%,
+      rgba(0, 0, 0, 0.18) 4%,
+      rgba(0, 0, 0, 0.38) 7%,
+      rgba(0, 0, 0, 0.58) 10%,
+      rgba(0, 0, 0, 0.76) 13%,
+      rgba(0, 0, 0, 0.88) 16%,
+      #000 22%,
+      #000 78%,
+      rgba(0, 0, 0, 0.88) 84%,
+      rgba(0, 0, 0, 0.76) 87%,
+      rgba(0, 0, 0, 0.58) 90%,
+      rgba(0, 0, 0, 0.38) 93%,
+      rgba(0, 0, 0, 0.18) 96%,
+      rgba(0, 0, 0, 0.06) 98.5%,
+      transparent 100%
+    ),
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(0, 0, 0, 0.25) 8%,
+      #000 16%,
+      #000 84%,
+      rgba(0, 0, 0, 0.3) 92%,
+      transparent 100%
+    );
+  mask-composite: intersect;
+}
+
+.hero-sharp-fill {
+  pointer-events: none;
+}
+
 .retro-hero-overlay-r2 {
   background: linear-gradient(
     to top,

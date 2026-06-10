@@ -6,16 +6,16 @@ import { BRAND_META } from "@/lib/brand-meta";
 import type { BrandSlug } from "@/lib/types";
 
 export function BrandNav() {
-  const { activeBrand, setActiveBrand, navVisible } = useBrand();
+  const { activeBrand, setActiveBrand, brandNavVisible } = useBrand();
 
   return (
     <motion.nav
       aria-label="Band wechseln"
       initial={false}
       animate={{
-        opacity: navVisible ? 1 : 0,
-        y: navVisible ? 0 : -24,
-        pointerEvents: navVisible ? "auto" : "none",
+        opacity: brandNavVisible ? 1 : 0,
+        y: brandNavVisible ? 0 : -24,
+        pointerEvents: brandNavVisible ? "auto" : "none",
       }}
       transition={{ duration: 0.35, ease: "easeOut" }}
       className="fixed top-3 left-1/2 z-50 w-[min(94vw,720px)] -translate-x-1/2"
