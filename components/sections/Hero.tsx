@@ -15,11 +15,10 @@ type HeroBannerMetrics = {
   layout: HeroClipLayout;
 };
 
-function resolveBannerMetrics(width: number): HeroBannerMetrics {
-  const baseH =
-    typeof window !== "undefined"
-      ? window.innerHeight * (HERO_BASE_HEIGHT_VH / 100)
-      : 720;
+function resolveBannerMetrics(
+  width: number,
+  baseH: number,
+): HeroBannerMetrics {
   const height = computeHeroBannerHeight(width, baseH);
   return {
     height,
@@ -102,7 +101,7 @@ export function HeroSection({
 }) {
   const bannerRef = useRef<HTMLDivElement>(null);
   const [metrics, setMetrics] = useState<HeroBannerMetrics>(() =>
-    resolveBannerMetrics(1280),
+    resolveBannerMetrics(1280, 720),
   );
   const overlayClass =
     band === "katg" ? "retro-hero-overlay-katg" : "retro-hero-overlay-r2";
@@ -113,7 +112,8 @@ export function HeroSection({
 
     const update = () => {
       const width = banner.getBoundingClientRect().width;
-      setMetrics(resolveBannerMetrics(width));
+      const baseH = window.innerHeight * (HERO_BASE_HEIGHT_VH / 100);
+      setMetrics(resolveBannerMetrics(width, baseH));
     };
 
     update();
