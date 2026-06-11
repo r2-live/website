@@ -12,6 +12,7 @@ import {
 } from "react";
 import { useBrand } from "@/components/brand/BrandProvider";
 import type { BrandSlug, GalleryItem } from "@/lib/types";
+import { isViewportZoomed } from "@/lib/viewport";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 const SWIPE_THRESHOLD = 48;
@@ -537,6 +538,7 @@ function GalleryThumbnailStrip({
     const container = containerRef.current;
     const track = trackRef.current;
     const observer = new ResizeObserver(() => {
+      if (isViewportZoomed()) return;
       if (isBandActive) {
         updateStripLayout();
       } else {
@@ -548,6 +550,7 @@ function GalleryThumbnailStrip({
     if (track) observer.observe(track);
 
     const handleLayoutChange = () => {
+      if (isViewportZoomed()) return;
       if (isBandActive) {
         updateStripLayout();
         if (!isManualScrollRef.current) {
@@ -763,7 +766,7 @@ export function GallerySection({
             <div className="mx-auto max-w-4xl">
               <div
                 ref={galleryCardRef}
-                className="retro-card overflow-hidden rounded-md"
+                className="gallery-main-card retro-card mx-auto overflow-hidden rounded-md"
               >
                 <div
                 className="relative touch-pan-y"

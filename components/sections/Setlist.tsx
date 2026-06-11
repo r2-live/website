@@ -2,6 +2,7 @@
 
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { BrandSlug, SetlistTrack } from "@/lib/types";
+import { isViewportZoomed } from "@/lib/viewport";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 function getYoutubeEmbed(url: string) {
@@ -108,6 +109,7 @@ export function SetlistSection({
     if (!preview) return;
 
     const syncHeight = () => {
+      if (isViewportZoomed()) return;
       if (window.matchMedia("(min-width: 1024px)").matches) {
         setListHeight(preview.offsetHeight);
       } else {

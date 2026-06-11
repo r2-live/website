@@ -9,6 +9,7 @@ import {
   type HeroClipLayout,
 } from "@/lib/hero-clip-layout";
 import type { BandProfile, BrandSlug } from "@/lib/types";
+import { isViewportZoomed } from "@/lib/viewport";
 
 type HeroBannerMetrics = {
   height: number;
@@ -100,6 +101,7 @@ export function HeroSection({
   profile: BandProfile;
 }) {
   const bannerRef = useRef<HTMLDivElement>(null);
+  const landscapeHeightRef = useRef<number | null>(null);
   const [metrics, setMetrics] = useState<HeroBannerMetrics>(() =>
     resolveBannerMetrics(1280, 720),
   );
@@ -111,18 +113,47 @@ export function HeroSection({
     if (!banner) return;
 
     const update = () => {
-      const width = banner.getBoundingClientRect().width;
-      const baseH = window.innerHeight * (HERO_BASE_HEIGHT_VH / 100);
-      setMetrics(resolveBannerMetrics(width, baseH));
+      if (isViewportZoomed()) return;
+
+      const width = banner.clientWidth;
+      const isLandscapePhone =
+        window.matchMedia("(orientation: landscape)").matches &&
+        window.innerHeight <= 500 &&
+        window.innerWidth <= 1000;
+      if (isLandscapePhone) {
+        landscapeHeightRef.current ??= window.innerHeight;
+      } else {
+        landscapeHeightRef.current = null;
+      }
+      const baseH =
+        landscapeHeightRef.current !== null
+          ? landscapeHeightRef.current * 1.2
+          : window.innerHeight * (HERO_BASE_HEIGHT_VH / 100);
+      const nextMetrics = resolveBannerMetrics(width, baseH);
+      setMetrics((current) => {
+        const layoutUnchanged =
+          current.layout.mode === nextMetrics.layout.mode &&
+          current.layout.viewportWidth === nextMetrics.layout.viewportWidth &&
+          current.layout.useFullWidth === nextMetrics.layout.useFullWidth &&
+          current.layout.imageWidth === nextMetrics.layout.imageWidth &&
+          current.layout.imageHeight === nextMetrics.layout.imageHeight &&
+          current.layout.imageTop === nextMetrics.layout.imageTop;
+        return current.height === nextMetrics.height && layoutUnchanged
+          ? current
+          : nextMetrics;
+      });
     };
 
     update();
-    const observer = new ResizeObserver(update);
-    observer.observe(banner);
+    const handleOrientationChange = () => {
+      landscapeHeightRef.current = null;
+      requestAnimationFrame(update);
+    };
     window.addEventListener("resize", update, { passive: true });
+    window.addEventListener("orientationchange", handleOrientationChange);
     return () => {
-      observer.disconnect();
       window.removeEventListener("resize", update);
+      window.removeEventListener("orientationchange", handleOrientationChange);
     };
   }, []);
 
@@ -152,7 +183,7 @@ export function HeroSection({
           <p className="font-display mb-3 text-sm uppercase tracking-[0.35em] text-accent-gold">
             ★ {profile.shortName} ★
           </p>
-          <h1 className="font-display max-w-3xl text-5xl uppercase leading-[0.95] text-white drop-shadow-[3px_3px_0_rgba(0,0,0,0.35)] sm:text-7xl">
+          <h1 className="hero-title font-display max-w-3xl text-5xl uppercase leading-[0.95] text-white drop-shadow-[3px_3px_0_rgba(0,0,0,0.35)] sm:text-7xl">
             {profile.tagline}
           </h1>
           {profile.heroVideo ? (

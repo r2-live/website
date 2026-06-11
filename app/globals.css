@@ -21,6 +21,32 @@
   --radius-retro-lg: 0.5rem;
   --section-padding-x: 1.5rem;
   --section-padding-y: 4rem;
+  --section-heading-gap: 2rem;
+}
+
+@media (orientation: landscape) and (max-height: 31.25rem) and (max-width: 62.5rem) {
+  :root {
+    --section-padding-x: max(
+      2rem,
+      calc(env(safe-area-inset-left) + 1rem),
+      calc(env(safe-area-inset-right) + 1rem)
+    );
+    --section-padding-y: 2.5rem;
+    --section-heading-gap: 1.5rem;
+  }
+
+  html {
+    font-size: 80%;
+  }
+
+  .gallery-main-card {
+    width: min(100%, 112dvh);
+  }
+
+  .hero-title {
+    font-size: 3.5rem;
+  }
+
 }
 
 @theme inline {
@@ -384,6 +410,14 @@ summary,
     var(--border-strong),
     transparent
   );
+}
+
+.section-heading {
+  margin-bottom: var(--section-heading-gap);
+}
+
+.section-heading:last-child {
+  margin-bottom: 0;
 }
 
 .band-zone-chrome .section-heading-rule {

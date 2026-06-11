@@ -1,12 +1,12 @@
 export function SharedZoneBridge() {
   return (
-    <div className="shared-zone-bridge section-padding-x pb-10 pt-10 sm:pt-12">
+    <div className="shared-zone-bridge section-padding">
       <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
         <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6">
           <img
             src="/media/r2-live/logo.svg"
             alt="R2-Live"
-            className="h-9 w-auto object-contain sm:h-11"
+            className="h-12 w-auto object-contain sm:h-16"
           />
 
           <span
@@ -21,7 +21,7 @@ export function SharedZoneBridge() {
           </span>
         </div>
 
-        <p className="font-display mt-8 text-3xl uppercase leading-none text-foreground sm:text-4xl">
+        <p className="font-display mt-[var(--section-heading-gap)] text-3xl uppercase leading-none text-foreground sm:text-4xl">
           Ein Repertoire
         </p>
         <p className="font-display mt-2 text-lg uppercase tracking-[0.12em] text-accent-gold sm:text-xl">

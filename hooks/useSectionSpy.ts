@@ -7,6 +7,7 @@ import {
   SHARED_SECTIONS,
   type BrandSlug,
 } from "@/lib/types";
+import { isViewportZoomed } from "@/lib/viewport";
 
 function scrollToSection(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -16,14 +17,11 @@ function isBannerQuarterHidden(brand: BrandSlug) {
   const hero = document.getElementById(`${brand}-hero`);
   if (!hero) return window.scrollY > 48;
 
-  const { top, bottom, height } = hero.getBoundingClientRect();
+  const { top, height } = hero.getBoundingClientRect();
   if (height <= 0) return false;
 
-  const visibleTop = Math.max(0, top);
-  const visibleBottom = Math.min(window.innerHeight, bottom);
-  const visibleHeight = Math.max(0, visibleBottom - visibleTop);
-
-  return visibleHeight <= (height * 3) / 4;
+  const heroTop = window.scrollY + top;
+  return window.scrollY >= heroTop + height / 4;
 }
 
 export function useSectionSpy(sharedZoneRef: React.RefObject<HTMLElement | null>) {
@@ -34,11 +32,19 @@ export function useSectionSpy(sharedZoneRef: React.RefObject<HTMLElement | null>
     if (!target) return;
 
     let sharedZoneInView = false;
+    let updateFrame = 0;
 
     const updateNav = () => {
+      if (isViewportZoomed()) return;
+
       const bannerQuarterHidden = isBannerQuarterHidden(activeBrand);
       setNavVisible(!sharedZoneInView);
       setBrandNavVisible(!sharedZoneInView && bannerQuarterHidden);
+    };
+
+    const scheduleNavUpdate = () => {
+      cancelAnimationFrame(updateFrame);
+      updateFrame = requestAnimationFrame(updateNav);
     };
 
     const sharedObserver = new IntersectionObserver(
@@ -52,11 +58,12 @@ export function useSectionSpy(sharedZoneRef: React.RefObject<HTMLElement | null>
     sharedObserver.observe(target);
     updateNav();
 
-    const onScrollOrResize = () => updateNav();
+    const onScrollOrResize = () => scheduleNavUpdate();
     window.addEventListener("scroll", onScrollOrResize, { passive: true });
     window.addEventListener("resize", onScrollOrResize, { passive: true });
 
     return () => {
+      cancelAnimationFrame(updateFrame);
       sharedObserver.disconnect();
       window.removeEventListener("scroll", onScrollOrResize);
       window.removeEventListener("resize", onScrollOrResize);

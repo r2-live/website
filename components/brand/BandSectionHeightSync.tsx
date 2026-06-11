@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { isViewportZoomed } from "@/lib/viewport";
 
 const MEMBER_CARD_R2_SCALE = 1.15;
 const MEMBER_CARD_R2_MAX_REM = 15;
@@ -69,10 +70,17 @@ function syncBandSections() {
 
 export function BandSectionHeightSync() {
   useEffect(() => {
-    syncBandSections();
-    document.fonts?.ready.then(syncBandSections).catch(() => undefined);
+    let frame = 0;
+    const scheduleSync = () => {
+      if (isViewportZoomed()) return;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(syncBandSections);
+    };
 
-    const observer = new ResizeObserver(syncBandSections);
+    scheduleSync();
+    document.fonts?.ready.then(scheduleSync).catch(() => undefined);
+
+    const observer = new ResizeObserver(scheduleSync);
     document
       .querySelectorAll<HTMLElement>("[data-sync-section]")
       .forEach((el) => observer.observe(el));
@@ -80,11 +88,12 @@ export function BandSectionHeightSync() {
       .querySelectorAll<HTMLElement>(".members-grid--katg > *, .members-grid--r2-live > *")
       .forEach((el) => observer.observe(el));
 
-    window.addEventListener("resize", syncBandSections);
+    window.addEventListener("resize", scheduleSync, { passive: true });
 
     return () => {
+      cancelAnimationFrame(frame);
       observer.disconnect();
-      window.removeEventListener("resize", syncBandSections);
+      window.removeEventListener("resize", scheduleSync);
     };
   }, []);
 
